@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'El poder de Eloquent: gestión de bases de datos con Laravel',
+  title: 'Laravel 10: Crea aplicaciones web escalables y seguras',
   tagline: 'Guía de referencia',
   favicon: 'img/favicon.ico',
 
@@ -62,9 +62,9 @@ const config = {
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'El poder de Eloquent',
+        title: 'Laravel 10',
         logo: {
-          alt: 'El poder de Elquent',
+          alt: 'Laravel 10',
           src: 'img/laravel.png',
         },
         items: [

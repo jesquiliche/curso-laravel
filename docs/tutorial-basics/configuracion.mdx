@@ -16,7 +16,7 @@ comando en su consola.
 ## Instalar LAMP
 
 Si no dispone de ningún entorno de programción PHP como Laragon, WAMPP, 
-puedes instalar XAMPP. Esta aplicación te instalara el lenguje programación
+puedes instalar XAMPP. Esta aplicación te instalara el lenguaje programación
 PHP, el servidor HTTP Apache y la BB.DD MySQL.
 
 Para instalar LAMP en tu máquina, sigue los siguientes pasos:
@@ -155,4 +155,83 @@ Una vez que el servidor esté en marcha, podrás acceder a tu aplicación Larave
 Si todo ha ido bien el navegador debera mostrarle una página como esta:
  
  ![laravel](/img/Server.png)
+
+## ¿Qué es Jetstream?
+
+Jetstream es un paquete de Laravel que proporciona una estructura de autenticación y un conjunto de características de seguridad comunes para agilizar el proceso de creación de aplicaciones web. En esencia, Jetstream proporciona una interfaz de usuario y una capa de backend para administrar la autenticación y la autorización de usuarios, así como otras funcionalidades como la verificación de correo electrónico, el restablecimiento de contraseñas, la autenticación de dos factores, el control de acceso a nivel de equipo y mucho más.
+
+Jetstream utiliza el sistema de plantillas de Blade de Laravel para generar vistas preconstruidas y proporciona una arquitectura modular que facilita la personalización y la extensión del paquete. También viene con una integración integrada de Laravel Livewire, lo que permite la construcción de interfaces de usuario dinámicas sin necesidad de escribir JavaScript.
+
+En resumen, Jetstream es una herramienta muy útil para los desarrolladores de Laravel que quieren ahorrar tiempo en la implementación de la autenticación y otras funcionalidades de seguridad comunes en sus aplicaciones web.
+
+
+## ¿Qué hemos hecho?
+
+ ¡Por supuesto! Aquí hay un ejemplo de cómo podría verse un proyecto de Laravel 10 con Jetstream:
+
+Estructura de carpetas:
+
+```
+/app
+    /Http
+        /Controllers
+        /Livewire
+    /Models
+/database
+    /migrations
+/resources
+    /views
+    /js
+    /scss
+```
+
+Migraciones:
+
+```
+create_users_table.php
+create_password_resets_table.php
+create_failed_jobs_table.php
+create_teams_table.php
+create_team_user_table.php
+create_projects_table.php
+```
+
+Jetstream incluye modelos y migraciones para usuarios, restablecimiento de contraseñas, trabajos fallidos y equipos. Además, he agregado migraciones para proyectos, que permiten que los usuarios creen y administren proyectos en su equipo.
+
+Controladores:
+
+```
+AuthController.php
+ProjectController.php
+```
+
+El controlador de autenticación viene incluido con Jetstream, y he agregado un controlador de proyectos que maneja la creación, actualización y eliminación de proyectos.
+
+Livewire Components:
+
+```
+CreateProjectForm.php
+EditProjectForm.php
+```
+
+Utilicé Livewire para crear componentes reutilizables que manejan la lógica de creación y edición de proyectos.
+
+Rutas:
+
+```
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::resource('projects', ProjectController::class);
+});
+```
+
+Las rutas para el controlador de proyectos se definen con `Route::resource()`, lo que genera automáticamente las rutas necesarias para crear, leer, actualizar y eliminar proyectos. También hay una ruta protegida por autenticación para el dashboard del usuario.
+
 
