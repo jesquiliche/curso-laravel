@@ -1,92 +1,158 @@
 ---
 sidebar_position: 3
 ---
-# Configuración del proyecto
+# Instalación y configuración
 
-## Requisitos previos
-
-En esta guía se da por descontado que el usuario ya cuenta con conocimientos previos de Laravel aunque sean básicos. De todas formas para poder desarrollar utilizaremos un proyecto ya creado para no partir de cero. Este proyecto cuenta con su propia documentación la cual podrás encontrar en el siguiente enlace.
-
-[laravel API docs](https://jesquiliche.github.io/api-laravel-doc/docs/intro "Enlace al proyecto base de ejemplo")
-
-El enlace al código lo podrás en la aquí.
-
-[Proyecto Laravel-api-docs](https://github.com/jesquiliche/API-COMERCIO2)
-
-## Instrucciones para instalar el proyecto
-
-Abre una terminal o línea de comandos y navega hasta el directorio donde quieras instalar el proyecto.
-
-Clona el repositorio de GitHub utilizando el siguiente comando:
-
+:::danger Importante
+Para poder trabajar con la versión 10 de Laravel debera tener instalada 
+la versión de PHP 8.1.
+Para comprobar que versión de PHP esta utilizando debera teclear el siguiente
+comando en su consola.
 ```bash
-git clone https://github.com/jesquiliche/API-COMERCIO2.git
+   php -v
 ```
-Este comando descargará el repositorio API-COMERCIO2 en el directorio actual.
-
-Ingresa al directorio del proyecto con el comando:
-
-```bash
-cd API-COMERCIO2
-```
-
-Ejecuta el siguiente comando para instalar las dependencias del proyecto:
-
-```bash
-composer install
-```
-
-Copia el archivo .env.example y renómbralo como .env con el siguiente comando:
-
-```bash
-cp .env.example .env
-```
-Este archivo contiene variables de entorno que deben configurarse para que el proyecto funcione correctamente.
-
-:::info Como cambiar las variables de entorno
-Antes de proceder con estos pasos debe crear una base de datos nueva. En este ejemplo estamos utilizando una conexión a MySQL, para otras BB.DD consultar la documentación oficial.
-
-- Abre el archivo .env en el directorio raíz del proyecto.
-
-- Busca las variables de entorno que se refieren a la configuración de la base de datos, por ejemplo, DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME y DB_PASSWORD.
-
-- Cambia los valores de las variables según sea necesario. Por ejemplo, si deseas cambiar la base de datos de MySQL a PostgreSQL, cambia la línea correspondiente a:
-
-```bash
-DB_CONNECTION=mysql
-```
-
-y actualiza las variables DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME y DB_PASSWORD con los valores correspondientes para la nueva base de datos.
-
-- Guarda los cambios en el archivo .env.
-
-Una vez que hayas actualizado la configuración de la base de datos en el archivo .env, Laravel utilizará automáticamente estas nuevas configuraciones al conectarse a la base de datos. Si tienes migraciones pendientes o semillas para ejecutar, asegúrate de ejecutarlas nuevamente para que se creen las tablas y se poblen con los datos correspondientes en la nueva base de datos.
 :::
 
+## Instalar LAMP
 
-Genera una nueva clave de aplicación con el siguiente comando:
+Si no dispone de ningún entorno de programción PHP como Laragon, WAMPP, 
+puedes instalar XAMPP. Esta aplicación te instalara el lenguje programación
+PHP, el servidor HTTP Apache y la BB.DD MySQL.
 
-```bash
-php artisan key:generate
+Para instalar LAMP en tu máquina, sigue los siguientes pasos:
+
+1. Descarga la versión de XAMPP desde la página oficial: https://www.apachefriends.org/es/download.html.
+Recuerda seleccionar el paquete con la versión 8.1
+
+2. Una vez descargado, ejecuta el instalador y sigue las instrucciones. Es posible que te solicite permisos de administrador para instalar algunos componentes.
+
+3. Durante el proceso de instalación, te preguntará qué componentes deseas instalar. Asegúrate de seleccionar Apache, MySQL y PHP.
+
+4. Cuando finalice la instalación, inicia XAMPP. Si estás en Windows, puedes hacerlo desde el menú Inicio. Si estás en Linux, abre una terminal y escribe el siguiente comando: `sudo /opt/lampp/lampp start`.
+
+5. Si todo funciona correctamente, verás que los servicios de Apache y MySQL están activos en el panel de control de XAMPP.
+
+¡Listo! Ahora puedes comenzar a trabajar con LAMP en tu máquina. Recuerda que debes configurar la base de datos de MySQL y las rutas de PHP para que todo funcione correctamente.
+
+
+
+
+## Instalación de Laravel con Jetstream (Modalidad Global)
+
+1. Verificar si tienes instalado Composer: Para instalar Laravel, necesitas tener Composer instalado en tu computadora. Para verificar si lo tienes instalado, abre la terminal (en Windows: Command Prompt o PowerShell) y escribe el siguiente comando:
+
+   ```
+   composer --version
+   ```
+
+   Si Composer está instalado, se mostrará su versión. Si no está instalado, puedes descargarlo desde [getcomposer.org](https://getcomposer.org/).
+
+2. Instalar Laravel: Para instalar Laravel, abre la terminal y escribe el siguiente comando:
+
+   ```
+   composer global require laravel/installer
+   ```
+
+   Este comando descargará e instalará Laravel de manera global en tu computadora. Después de la instalación, verifica que Laravel se haya instalado correctamente escribiendo el siguiente comando:
+
+   ```
+   laravel --version
+   ```
+
+3. Crear un nuevo proyecto de Laravel con Jetstream: Para crear un nuevo proyecto de Laravel con Jetstream, abre la terminal y escribe el siguiente comando:
+
+   ```
+   laravel new nombre-del-proyecto --jet
+   ```
+
+   Este comando creará un nuevo proyecto de Laravel con Jetstream y todas las dependencias necesarias instaladas.
+
+## Instalación de Laravel con Jetstream (Modalidad Local)
+
+1. Verificar si tienes instalado Composer: Para instalar Laravel, necesitas tener Composer instalado en tu computadora. Para verificar si lo tienes instalado, abre la terminal (en Windows: Command Prompt o PowerShell) y escribe el siguiente comando:
+
+   ```
+   composer --version
+   ```
+
+   Si Composer está instalado, se mostrará su versión. Si no está instalado, puedes descargarlo desde [getcomposer.org](https://getcomposer.org/).
+   ![composer](/img/composer.png)
+
+
+2. Crear un directorio para el proyecto: Crea un nuevo directorio en tu computadora donde guardarás el proyecto de Laravel.
+
+3. Navegar al directorio del proyecto: Abre la terminal y navega hasta el directorio que acabas de crear.
+
+4. Descargar Laravel con Jetstream: Para descargar Laravel con Jetstream, escribe el siguiente comando en la terminal:
+
+   ```
+   composer create-project --prefer-dist laravel/laravel nombre-del-proyecto
+   ```
+
+   Este comando descargará Laravel en el directorio del proyecto que acabas de crear.
+
+5. Instalar Jetstream: Para instalar Jetstream, navega hasta el directorio del proyecto en la terminal y escribe el siguiente comando:
+
+   ```
+   composer require laravel/jetstream
+   ```
+
+   Este comando instalará Jetstream y todas las dependencias necesarias.
+
+6. Ejecutar Jetstream: Para ejecutar Jetstream, escribe el siguiente comando en la terminal:
+
+   ```
+   php artisan jetstream:install livewire
+   ```
+
+   Este comando instalará Jetstream con el stack de Livewire.
+
+## Configuración de Base de datos
+
+Sí, por supuesto. Para configurar las variables de entorno para conectar Laravel con la base de datos, sigue estos pasos:
+
+1. Abre tu proyecto Laravel en tu editor de código preferido.
+2. Crea un archivo llamado `.env` en la raíz del proyecto. Si estás utilizando Windows, puedes hacer esto abriendo la línea de comandos, navegando hasta el directorio raíz del proyecto y escribiendo el comando `copy .env.example .env`. Si estás utilizando Mac o Linux, puedes usar el comando `cp .env.example .env`.
+3. Abre el archivo `.env` y configura las siguientes variables de entorno:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_de_la_base_de_datos
+DB_USERNAME=nombre_de_usuario_de_la_base_de_datos
+DB_PASSWORD=contraseña_de_usuario_de_la_base_de_datos
 ```
 
-Este comando generará una nueva clave de aplicación y la almacenará en el archivo .env.
+4. Asegúrate de reemplazar `nombre_de_la_base_de_datos`, `nombre_de_usuario_de_la_base_de_datos` y `contraseña_de_usuario_de_la_base_de_datos` con los valores correspondientes para tu base de datos.
+5. Guarda el archivo `.env`.
 
-Configura las variables de entorno en el archivo .env con los valores correspondientes a tu entorno.
+Ahora Laravel utilizará estas variables de entorno para conectarse a la base de datos. Si estás utilizando XAMPP o WAMP, asegúrate de que el servicio de MySQL esté ejecutándose en el puerto especificado en la variable `DB_PORT` (por defecto, el puerto es 3306).
 
-Ejecuta las migraciones de la base de datos con el siguiente comando:
+Si ya has configurado las variables de entorno pero no estás seguro de si funcionan correctamente, puedes probar la conexión a la base de datos ejecutando el comando `php artisan migrate` en la línea de comandos en la raíz del proyecto. Este comando ejecutará las migraciones de la base de datos y te indicará si hay algún problema de conexión.
+:::info
+En nuestro ejemplo utilzaremos como base de anuncios, esta debera estar creada antes de continuar con los siguientes pasos.
+:::
 
-```bash
-php artisan migrate:fresh --seed
+6. Ejecute el comando php artisan migrate si todavia no lo ha ejecutado.
+
+## Iniciar el servidor
+
+Para iniciar el servidor web en Laravel, puedes usar el siguiente comando desde la terminal:
+
 ```
-Este comando ejecutará todas las migraciones del proyecto y creará las tablas correspondientes en la base de datos.
-
-Ejecuta el servidor de desarrollo con el siguiente comando:
-
-```bash
 php artisan serve
 ```
 
-Este comando iniciará el servidor de desarrollo de Laravel en http://localhost:8000.
+Este comando iniciará el servidor en `http://localhost:8000` por defecto. Si deseas especificar un puerto diferente, puedes utilizar la opción `-p` o `--port`, seguido del número de puerto que deseas usar. Por ejemplo, para iniciar el servidor en el puerto 9000, utilizarías el siguiente comando:
 
-Una vez que hayas completado estos pasos, deberías tener el proyecto API-COMERCIO2 instalado y en funcionamiento en tu máquina local.
+```
+php artisan serve --port=9000
+```
+
+Una vez que el servidor esté en marcha, podrás acceder a tu aplicación Laravel a través del navegador web visitando la dirección `http://localhost:8000` (o la dirección que especificaste al usar la opción `--port`).
+
+Si todo ha ido bien el navegador debera mostrarle una página como esta:
+ 
+ ![laravel](/img/Server.png)
+
