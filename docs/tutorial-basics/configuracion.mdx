@@ -1,0 +1,92 @@
+---
+sidebar_position: 3
+---
+# Configuración del proyecto
+
+## Requisitos previos
+
+En esta guía se da por descontado que el usuario ya cuenta con conocimientos previos de Laravel aunque sean básicos. De todas formas para poder desarrollar utilizaremos un proyecto ya creado para no partir de cero. Este proyecto cuenta con su propia documentación la cual podrás encontrar en el siguiente enlace.
+
+[laravel API docs](https://jesquiliche.github.io/api-laravel-doc/docs/intro "Enlace al proyecto base de ejemplo")
+
+El enlace al código lo podrás en la aquí.
+
+[Proyecto Laravel-api-docs](https://github.com/jesquiliche/API-COMERCIO2)
+
+## Instrucciones para instalar el proyecto
+
+Abre una terminal o línea de comandos y navega hasta el directorio donde quieras instalar el proyecto.
+
+Clona el repositorio de GitHub utilizando el siguiente comando:
+
+```bash
+git clone https://github.com/jesquiliche/API-COMERCIO2.git
+```
+Este comando descargará el repositorio API-COMERCIO2 en el directorio actual.
+
+Ingresa al directorio del proyecto con el comando:
+
+```bash
+cd API-COMERCIO2
+```
+
+Ejecuta el siguiente comando para instalar las dependencias del proyecto:
+
+```bash
+composer install
+```
+
+Copia el archivo .env.example y renómbralo como .env con el siguiente comando:
+
+```bash
+cp .env.example .env
+```
+Este archivo contiene variables de entorno que deben configurarse para que el proyecto funcione correctamente.
+
+:::info Como cambiar las variables de entorno
+Antes de proceder con estos pasos debe crear una base de datos nueva. En este ejemplo estamos utilizando una conexión a MySQL, para otras BB.DD consultar la documentación oficial.
+
+- Abre el archivo .env en el directorio raíz del proyecto.
+
+- Busca las variables de entorno que se refieren a la configuración de la base de datos, por ejemplo, DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME y DB_PASSWORD.
+
+- Cambia los valores de las variables según sea necesario. Por ejemplo, si deseas cambiar la base de datos de MySQL a PostgreSQL, cambia la línea correspondiente a:
+
+```bash
+DB_CONNECTION=mysql
+```
+
+y actualiza las variables DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME y DB_PASSWORD con los valores correspondientes para la nueva base de datos.
+
+- Guarda los cambios en el archivo .env.
+
+Una vez que hayas actualizado la configuración de la base de datos en el archivo .env, Laravel utilizará automáticamente estas nuevas configuraciones al conectarse a la base de datos. Si tienes migraciones pendientes o semillas para ejecutar, asegúrate de ejecutarlas nuevamente para que se creen las tablas y se poblen con los datos correspondientes en la nueva base de datos.
+:::
+
+
+Genera una nueva clave de aplicación con el siguiente comando:
+
+```bash
+php artisan key:generate
+```
+
+Este comando generará una nueva clave de aplicación y la almacenará en el archivo .env.
+
+Configura las variables de entorno en el archivo .env con los valores correspondientes a tu entorno.
+
+Ejecuta las migraciones de la base de datos con el siguiente comando:
+
+```bash
+php artisan migrate:fresh --seed
+```
+Este comando ejecutará todas las migraciones del proyecto y creará las tablas correspondientes en la base de datos.
+
+Ejecuta el servidor de desarrollo con el siguiente comando:
+
+```bash
+php artisan serve
+```
+
+Este comando iniciará el servidor de desarrollo de Laravel en http://localhost:8000.
+
+Una vez que hayas completado estos pasos, deberías tener el proyecto API-COMERCIO2 instalado y en funcionamiento en tu máquina local.
