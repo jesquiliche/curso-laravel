@@ -8,7 +8,7 @@ sidebar_position: 1
 
 **Autor: Jesús Quintana Esquiliche**
 
-## ¿Qué Laravel?
+## ¿Qué es Laravel?
 
 Laravel es un framework de código abierto para aplicaciones web escritas en el lenguaje de programación PHP. Es uno de los frameworks más populares y utilizados por desarrolladores de todo el mundo debido a su facilidad de uso, eficiencia y flexibilidad.
 
