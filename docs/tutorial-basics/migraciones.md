@@ -514,7 +514,7 @@ return new class extends Migration
             $table->unsignedBigInteger('estado_id');
             $table->foreign('estado_id')->references('id')->on('estados');
             $table->string('provincia',2);
-            $table->string('cod_postal',5)->index();
+            $table->string('cod_postal',5);
             $table->timestamps();
         });
     }
@@ -572,7 +572,6 @@ return new class extends Migration
             $table->string("provincia_cod",2);
         
             $table->foreign("provincia_cod")->on("provincias")->references("codigo");
-            $table->foreign("codigo")->on("anuncios")->references("cod_postal");
             $table->timestamps();
         });
     }
@@ -590,9 +589,9 @@ return new class extends Migration
 ```
 Esta migración crea la tabla `poblaciones` con tres columnas: `codigo`, `nombre` y `provincia_cod`. La columna `codigo` se define como clave primaria y como una cadena de longitud máxima de 5 caracteres. La columna `nombre` es una cadena que contiene el nombre de la población. La columna `provincia_cod` es una cadena que hace referencia a la columna `codigo` en la tabla `provincias`. 
 
-Además, se definen dos restricciones de clave externa en la tabla. La primera restricción establece que la columna `provincia_cod` es una clave externa que hace referencia a la columna `codigo` en la tabla `provincias`. La segunda restricción establece que la columna `codigo` es una clave externa que hace referencia a la columna `cod_postal` en la tabla `anuncios`.
+Además, se definen dos restricciones de clave externa en la tabla. La primera restricción establece que la columna `provincia_cod` es una clave externa que hace referencia a la columna `codigo` en la tabla `provincias`. 
 
-En resumen, esta migración crea una tabla `poblaciones` para almacenar información sobre las poblaciones, y establece relaciones de clave externa con las tablas `provincias` y `anuncios`.
+En resumen, esta migración crea una tabla `poblaciones` para almacenar información sobre las poblaciones, y establece relaciones de clave externa con las tablas `provincias`.
 
 ### Tags
 
@@ -710,4 +709,4 @@ Esta migración crea una tabla llamada "fotos" que almacena las fotos de los anu
 - "anuncio_id": clave foránea que hace referencia a la tabla "anuncios", indicando a qué anuncio pertenece cada foto.
 - "timestamps": dos campos que registran la fecha y hora de creación y actualización de cada registro.
 
-En resumen, esta migración crea una tabla que permite almacenar múltiples fotos para cada anuncio.s
+En resumen, esta migración crea una tabla que permite almacenar múltiples fotos para cada anuncio.

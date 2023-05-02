@@ -5,7 +5,6 @@ sidebar_position: 5
 # Creación y definición de relaciones
 
 ## ¿Qué es Elocuent? 
-![Descripcion de la imagen"](/assets/images/orm.png
 
 Eloquent es el ORM (Object-Relational Mapping) integrado en Laravel, que permite trabajar con las bases de datos de manera objetual. Es decir, Eloquent permite interactuar con las tablas de la base de datos a través de modelos en lugar de escribir consultas SQL manualmente. Cada modelo de Eloquent representa una tabla de la base de datos y proporciona métodos para interactuar con la información almacenada en la tabla. Con Eloquent, se pueden realizar operaciones comunes de CRUD (Crear, Leer, Actualizar y Borrar) de manera fácil y sencilla.
 
@@ -336,6 +335,7 @@ Modificar un registro existente:
 Tinker es una herramienta muy útil para probar código rápidamente y ver los resultados sin tener que recargar la página o escribir código adicional en tu aplicación de Laravel. ¡Disfruta!
 
 ## Modelos
+
 ### Categoría
 
 Ejecute el siguiente comando en su terminal:
@@ -404,7 +404,7 @@ php artisan make:model Subcategoria
 
 Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Subcategoria"**. Substituya el código generado por el siguiente código:
 
-```js title="app\Models\Subcategoria.php"
+```php title="app\Models\Subcategoria.php"
 <?php
 
 namespace App\Models;
@@ -426,8 +426,8 @@ class Subcategoria extends Model
         return $this->belongsTo('App\Models\Categoria');
     }
 
-    public function productos(){
-        return $this->hasMany('App\Models\Producto');
+    public function anuncios(){
+        return $this->hasMany('App\Models\Anuncio');
     }
 }
 ```
@@ -438,19 +438,21 @@ La propiedad "$fillable" define los campos que se pueden asignar masivamente en 
 
 La función "categoria()" es una relación **"belongsTo"** que indica que una subcategoría pertenece a una sola categoria. La relación se establece con el modelo "Categoria" de la aplicación.
 
-La función **"productos()"** es una relación **"hasMany"** que indica que una subcategoría puede tener varios productos asociados a ella. La relación se establece con el modelo _"Producto"_ de la aplicación.
+La función **"anuncios()"** es una relación **"hasMany"** que indica que una subcategoría puede tener varios anuncios asociados a ella. La relación se establece con el modelo _"Anuncio"_ de la aplicación.
 
-### Producto
+### Estado
+
+Claro, aquí tienes una documentación similar para el modelo "Estado":
 
 Ejecute el siguiente comando en su terminal:
 
 ```bash
-php artisan make:model Producto
+php artisan make:model Estado
 ```
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Producto"**. Substituya el código generado por el siguiente código:
+Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Estado"**. Substituya el código generado por el siguiente código:
 
-```js title="app\Models\Producto.php"
+```php title="app\Models\Estado.php"
 <?php
 
 namespace App\Models;
@@ -458,70 +460,43 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Producto extends Model
+class Estado extends Model
 {
     use HasFactory;
-    protected $table="productos";
-    
 
     protected $fillable = [
-        'nombre',
-        'descripcion',
-        'precio',
-        'imagen',
-        'subcategoria_id',
-        'iva_id',
-        'marca_id'
+        'nombre'
     ];
 
-    public function subcategoria(){
-        return $this->belongsTo('App\Models\Subcategoria');
-    }
-
-    public function iva(){
-        return $this->belongsTo('App\Models\Iva');
-    }
-    public function marca(){
-        return $this->belongsTo('App\Models\Marca');
-    }
-    public function oferta(){
-        return $this->belongsTo('App\Models\Oferta');
-    }
-    //Relacion muchos a muchos
-    public function proveedores(){
-        return $this->belongsToMany(Producto::class);
+    public function anuncios(){
+        return $this->hasMany('App\Models\Anuncio');
     }
 }
 ```
-Este este código de un modelo **"Producto"** en Laravel utilizando Eloquent. En este código se establecen relaciones uno a muchos con los modelos **"Subcategoria", "Iva", "Marca"** y **"Oferta"**, así como también una relación muchos a muchos con el modelo **"Proveedor"**.
 
-La propiedad "table" especifica el nombre de la tabla en la base de datos que almacenará los datos de los productos. La propiedad **"fillable"** especifica los campos que pueden ser rellenados y almacenados en la base de datos cuando se crea o actualiza un producto.
+El modelo utiliza la función **"HasFactory"** que permite crear fábricas de objetos para probar y realizar pruebas en el modelo.
 
-Los métodos **"subcategoria"**, **"iva"**, **"marca"** y **"oferta"** definen las relaciones uno a muchos con los modelos correspondientes. Por ejemplo, el método **"subcategoria"** devuelve una instancia del modelo **"Subcategoria"** al que pertenece un producto.
+La propiedad "$fillable" define los campos que se pueden asignar masivamente en la base de datos y está compuesta por el campo **"nombre"**.
 
-El método **"proveedores"** define la relación muchos a muchos con el modelo **"Proveedor"**, que permite que un producto tenga muchos proveedores y que un proveedor pueda proveer muchos productos.
+La función **"anuncios()"** es una relación **"hasMany"** que indica que un estado puede tener varios anuncios asociados a él. La relación se establece con el modelo "Anuncio" de la aplicación.
 
-Estos métodos se utilizan para acceder a los datos relacionados, por ejemplo:
+### Foto
 
-```js
-$product = Producto::find(1);
-$subcategory = $product->subcategoria;
-$iva = $product->iva;
-$brand = $product->marca;
-$offer = $product->oferta;
-$suppliers = $product->proveedores;
-```
-### Iva
+El modelo `Foto` representa las imágenes asociadas a un anuncio en la aplicación. Cada registro en la tabla `fotos` representa una imagen subida por un usuario.
 
-Ejecute el siguiente comando en su terminal:
+#### Crear modelo
+
+Para crear el modelo `Fotos` en Laravel, ejecutamos el siguiente comando en la terminal:
 
 ```bash
-php artisan make:model Iva
+php artisan make:model Foto
 ```
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Iva"**. Substituya el código generado por el siguiente código:
+Esto creará un archivo `Foto.php` en la carpeta `app/Models` de nuestro proyecto.
 
-```js title="app\Models\Iva.php"
+Introduzca el siguiente código para el modelo:
+
+```php
 <?php
 
 namespace App\Models;
@@ -529,128 +504,73 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Iva extends Model
+class Foto extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tanto_porciento','nombre'];
-    
-    public function productos(){
-        return $this->hasMany('App\Models\Producto');
-        
+    protected $fillable = ['path', 'anuncio_id'];
+
+    public function anuncio()
+    {
+        return $this->belongsTo(Anuncio::class);
     }
 }
 ```
-Este es un ejemplo de código de un modelo **"Iva"** en Laravel utilizando Eloquent. En este código se establece una relación uno a muchos con el modelo **"Producto"**.
 
-La propiedad **"fillable"** especifica los campos que pueden ser rellenados y almacenados en la base de datos cuando se crea o actualiza un registro de iva.
+#### Campos de la tabla
 
-El método **"productos"** define la relación uno a muchos con el modelo **"Producto"**. Este método devuelve una colección de todos los productos que pertenecen a un registro de iva.
+La tabla `fotos` tiene los siguientes campos:
 
-Estos métodos se utilizan para acceder a los datos relacionados, por ejemplo:
+- `id`: Identificador único de la foto.
+- `path`: Ruta de la imagen en el servidor.
+- `anuncio_id`: Identificador del anuncio al que está asociada la foto.
+- `created_at`: Fecha de creación del registro.
+- `updated_at`: Fecha de última actualización del registro.
 
-```js
-$iva = Iva::find(1);
-$products = $iva->productos;
-```
-### Marca
-Ejecute el siguiente comando en su terminal:
+#### Relaciones
 
-```bash
-php artisan make:model Marca
-```
+El modelo `Fotos` tiene una relación `belongsTo` con el modelo `Anuncio`, lo que significa que una foto pertenece a un solo anuncio. Para establecer esta relación, en el modelo `Fotos` debemos incluir el siguiente método:
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Marca"**. Substituya el código generado por el siguiente código:
-
-```js title="app\Models\Marca.php"
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Marca extends Model
+```php
+public function anuncio()
 {
-    protected $fillable = ['nombre'];
-    use HasFactory;
-
-    function productos(){
-        return $this->hasMany('App\Models\Producto');    
-    }
-
+    return $this->belongsTo(Anuncio::class);
 }
 ```
-Este es un ejemplo de código de un modelo **"Marca"** en Laravel utilizando Eloquent. En este código se establece una relación uno a muchos con el modelo **"Producto"**.
 
-La propiedad **"fillable"** especifica los campos que pueden ser rellenados y almacenados en la base de datos cuando se crea o actualiza un registro de marca.
+Además, el modelo `Anuncio` tiene una relación `hasMany` con el modelo `Fotos`, lo que significa que un anuncio puede tener varias fotos asociadas a él. Para establecer esta relación, en el modelo `Anuncio` debemos incluir el siguiente método:
 
-El método **"productos"** define la relación uno a muchos con el modelo **"Producto"**. Este método devuelve una colección de todos los productos que pertenecen a un registro de marca.
-
-Estos métodos se utilizan para acceder a los datos relacionados, por ejemplo:
-
-```js
-$marca = Marca::find(1);
-$products = $marca->productos;
-```
-### Oferta
-
-Ejecute el siguiente comando en su terminal:
-
-```bash
-php artisan make:model Oferta
-```
-
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Oferta"**. Substituya el código generado por el siguiente código:
-
-```js title="app\Models\Oferta.php"
-<?php
-
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Oferta extends Model
+```php
+public function fotos()
 {
-    use HasFactory;
-    protected $fillable = [
-        'precio',
-        'descripcion',
-        'fecha_ini',
-        'fecha_fin',
-        'producto_id'
-    ];
-
-    function productos(){
-        return $this->hasMany('App\Models\Producto');    
-    }
+    return $this->hasMany(Fotos::class);
 }
 ```
-Este es un ejemplo de código de un modelo **"Oferta"** en Laravel utilizando Eloquent. En este código se establece una relación uno a muchos con el modelo "Producto".
 
-La propiedad **"fillable"** especifica los campos que pueden ser rellenados y almacenados en la base de datos cuando se crea o actualiza un registro de oferta.
+#### Asignación masiva
 
-El método **"productos"** define la relación uno a muchos con el modelo **"Producto"**. Este método devuelve una colección de todos los productos que pertenecen a un registro de oferta.
+El modelo `Fotos` tiene habilitada la asignación masiva para el campo `path` y `anuncio_id`. Esto significa que podemos asignar estos campos en masa usando el método `create` de Eloquent. Para habilitar la asignación masiva, en el modelo `Fotos` debemos incluir la propiedad `$fillable` con los campos permitidos:
 
-Estos métodos se utilizan para acceder a los datos relacionados, por ejemplo:
-
-```js
-$oferta = Oferta::find(1);
-$products = $oferta->productos;
+```php
+protected $fillable = ['path', 'anuncio_id'];
 ```
-
 ### Provincia
 
-Ejecute el siguiente comando en su terminal:
+El modelo `Provincia` representa una provincia dentro del territorio nacional. Cada registro en la tabla `provincias` representa una provincia y contiene información como su código y nombre.
+
+#### Crear modelo
+
+Para crear el modelo `Provincia` en Laravel, ejecutamos el siguiente comando en la terminal:
 
 ```bash
 php artisan make:model Provincia
 ```
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Provincia"**. Substituya el código generado por el siguiente código:
+Esto creará un archivo `Provincia.php` en la carpeta `app/Models` de nuestro proyecto.
 
-```js title="app\Models\Provincia.php"
+Introduzca el siguiente código para el modelo:
+
+```php
 <?php
 
 namespace App\Models;
@@ -660,45 +580,191 @@ use Illuminate\Database\Eloquent\Model;
 
 class Provincia extends Model
 {
-    protected $fillable = [
-        'codigo',
-        'nombre'
-       
-    ];
     use HasFactory;
+
+    protected $primaryKey = 'codigo';
+
+    public $incrementing = false;
+
+    protected $fillable = ['codigo', 'nombre'];
+
 }
 ```
-Este es un modelo de Laravel para una tabla de **"Provincias"**. La clase extiende de **Illuminate\Database\Eloquent\Model**, lo que significa que está siendo utilizada como un modelo Eloquent.
 
-El atributo **$fillable** especifica los campos que pueden ser asignados masivamente (por ejemplo, cuando se crea o se actualiza un registro en la tabla de **"Provincias"**).
+#### Campos de la tabla
 
-El trait HasFactory proporciona una forma conveniente de crear nuevos registros en la tabla utilizando fábricas, lo que puede ser útil en desarrollo y pruebas.
+La tabla `provincias` tiene los siguientes campos:
 
-Con este modelo, puedes interactuar con la tabla **"provincias"** en la base de datos usando las capacidades de Laravel. Por ejemplo, puedes consultar registros existentes o crear nuevos registros con una llamada simple al modelo:
+- `codigo`: Código único de la provincia, conformado por dos caracteres.
+- `nombre`: Nombre completo de la provincia.
+- `created_at`: Fecha de creación del registro.
+- `updated_at`: Fecha de última actualización del registro.
 
-```js
-$provincia = new Provincia();
-$provincia->codigo = '01';
-$provincia->nombre = 'Buenos Aires';
-$provincia->save();
+#### Asignación masiva
+
+El modelo `Provincia` tiene habilitada la asignación masiva para los campos `codigo` y `nombre`. Esto significa que podemos asignar estos campos en masa usando el método `create` de Eloquent. Para habilitar la asignación masiva, en el modelo `Provincia` debemos incluir la propiedad `$fillable` con los campos permitidos:
+
+```php
+protected $fillable = ['codigo', 'nombre'];
 ```
-También puedes consultar registros existentes de la tabla de "Provincias" de la siguiente manera:
 
-```js
-$provincias = Provincia::all();
-Esto te dará una colección de todos los registros en la tabla "provincias".
+Además, debemos especificar que el campo `codigo` es la clave primaria de la tabla y que no es un campo autoincremental, incluyendo las siguientes propiedades en el modelo `Provincia`:
+
+```php
+protected $primaryKey = 'codigo';
+
+public $incrementing = false;
 ```
+
+### Anuncio
+
+El modelo `Anuncio` representa un anuncio publicado por un usuario en la aplicación.
+
+#### Crear modelo
+
+Para crear el modelo `Anuncio` en Laravel, ejecutamos el siguiente comando en la terminal:
+
+```bash
+php artisan make:model Anuncio
+```
+
+Esto creará un archivo `Anuncio.php` en la carpeta `app/Models` de nuestro proyecto.
+
+Introduzca el siguiente código para el modelo:
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Anuncio extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'titulo',
+        'description',
+        'imagen',
+        'precio',
+        'user_id',
+        'subcategoria_id',
+        'telefono',
+        'estado_id',
+        'provincia',
+        'cod_postal',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subcategoria()
+    {
+        return $this->belongsTo(Subcategoria::class);
+    }
+
+    public function estado()
+    {
+        return $this->belongsTo(Estado::class);
+    }
+
+    public function fotos()
+    {
+        return $this->hasMany(Foto::class);
+    }
+
+     public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+}
+```
+
+#### Campos de la tabla
+
+La tabla `anuncios` tiene los siguientes campos:
+
+- `id`: Identificador único del anuncio.
+- `titulo`: Título del anuncio.
+- `description`: Descripción del anuncio.
+- `imagen`: Imagen asociada al anuncio.
+- `precio`: Precio del producto o servicio anunciado.
+- `user_id`: Identificador del usuario que publicó el anuncio.
+- `subcategoria_id`: Identificador de la subcategoría a la que pertenece el anuncio.
+- `telefono`: Teléfono de contacto del anunciante.
+- `estado_id`: Identificador del estado en el que se encuentra el anuncio.
+- `provincia`: Provincia en la que se encuentra el producto o servicio anunciado.
+- `cod_postal`: Código postal del lugar en el que se encuentra el producto o servicio anunciado.
+- `created_at`: Fecha de creación del registro.
+- `updated_at`: Fecha de última actualización del registro.
+
+#### Relaciones
+
+El modelo `Anuncio` tiene una relación `belongsTo` con el modelo `User`, lo que significa que un anuncio pertenece a un solo usuario. Para establecer esta relación, en el modelo `Anuncio` debemos incluir el siguiente método:
+
+```php
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
+```
+
+Además, el modelo `User` tiene una relación `hasMany` con el modelo `Anuncio`, lo que significa que un usuario puede publicar varios anuncios. Para establecer esta relación, en el modelo `User` debemos incluir el siguiente método:
+
+```php
+public function anuncios()
+{
+    return $this->hasMany(Anuncio::class);
+}
+```
+
+El modelo `Anuncio` tiene una relación `belongsTo` con el modelo `Subcategoria`, lo que significa que un anuncio pertenece a una sola subcategoría. Para establecer esta relación, en el modelo `Anuncio` debemos incluir el siguiente método:
+
+```php
+public function subcategoria()
+{
+    return $this->belongsTo(Subcategoria::class);
+}
+```
+
+Una relación belongsTo con el modelo Estado, lo que significa que un anuncio tiene un estado asociado. Para establecer esta relación, en el modelo Anuncio debemos incluir el siguiente método:
+
+```php
+public function estado()
+{
+    return $this->belongsTo(Estado::class);
+}
+```
+Una relación belongsToMany con Tag.
+
+```php
+public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+```php
+
 ### Poblacion
 
-Ejecute el siguiente comando en su terminal:
+El modelo `Poblacion` representa una población en la base de datos. Cada registro en la tabla `poblaciones` representa una población única.
+
+#### Crear modelo
+
+Para crear el modelo `Poblacion` en Laravel, ejecutamos el siguiente comando en la terminal:
 
 ```bash
 php artisan make:model Poblacion
 ```
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Poblacion"**. Substituya el código generado por el siguiente código:
+Esto creará un archivo `Poblacion.php` en la carpeta `app/Models` de nuestro proyecto.
 
-```js title="app\Models\Poblacion.php"
+Introduzca el siguiente código para el modelo:
+
+```php
 <?php
 
 namespace App\Models;
@@ -709,25 +775,86 @@ use Illuminate\Database\Eloquent\Model;
 class Poblacion extends Model
 {
     use HasFactory;
-    protected $table="poblaciones";
-    protected $fillable = ['codigo','nombre'];
-    
+
+    protected $table = 'poblaciones';
+
+    protected $primaryKey = 'codigo';
+
+    public $incrementing = false;
+
+    protected $fillable = [
+        'codigo',
+        'nombre',
+        'provincia_cod',
+    ];
+
+    public function provincia()
+    {
+        return $this->belongsTo(Provincia::class);
+    }
+
+    public function anuncios()
+    {
+        return $this->hasMany(Anuncio::class, 'cod_postal', 'codigo');
+    }
 }
 ```
-Este es una definición de clase PHP para un modelo Eloquent en el marco de trabajo Laravel. La clase se llama **"Poblacion"** y extiende la clase **"Model"**
-incorporada. La clase representa una tabla de base de datos **"poblaciones"** y especifica qué columnas en esa tabla se pueden llenar con datos (la propiedad **"fillable"**) - en este caso, **"codigo"** y **"nombre"**.
 
-### Proveedor
+#### Campos de la tabla
 
-Ejecute el siguiente comando en su terminal:
+La tabla `poblaciones` tiene los siguientes campos:
+
+- `codigo`: Código postal de la población.
+- `nombre`: Nombre de la población.
+- `provincia_cod`: Código de la provincia a la que pertenece la población.
+
+#### Relaciones
+
+El modelo `Poblacion` tiene las siguientes relaciones:
+
+- Una relación `belongsTo` con el modelo `Provincia`, lo que significa que una población pertenece a una sola provincia. Para establecer esta relación, en el modelo `Poblacion` debemos incluir el siguiente método:
+
+  ```php
+  public function provincia()
+  {
+      return $this->belongsTo(Provincia::class);
+  }
+  ```
+
+- Una relación `hasMany` con el modelo `Anuncio`, lo que significa que una población puede tener muchos anuncios asociados. Para establecer esta relación, en el modelo `Poblacion` debemos incluir el siguiente método:
+
+  ```php
+  public function anuncios()
+  {
+      return $this->hasMany(Anuncio::class, 'cod_postal', 'codigo');
+  }
+  ```
+
+  En esta relación se utiliza el método `hasMany` en el modelo `Poblacion` para indicar que una población puede tener varios anuncios. Además, se utiliza el método `hasMany` con una especificación adicional de los campos de clave foránea y clave principal para indicar que la relación se establece entre el campo `cod_postal` del modelo `Anuncio` y el campo `codigo` del modelo `Poblacion`.
+
+  Es importante destacar que el tercer 
+  parámetro pasado al método `hasMany` es opcional y 
+  se utiliza sólo si los nombres de los campos en los 
+  modelos no coinciden con los nombres de las claves 
+  foráneas y principales en las tablas de la base de datos.
+
+### Tag
+
+El modelo `Tag` representa una etiqueta en la base de datos. Cada registro en la tabla `tags` representa una etiqueta única.
+
+#### Crear modelo
+
+Para crear el modelo `Tag` en Laravel, ejecutamos el siguiente comando en la terminal:
 
 ```bash
-php artisan make:model Proveedor
+php artisan make:model Tag
 ```
 
-Una vez ejecutado el comando, diríjase a la carpeta **App/Models** y edite el fichero **"Proveedor"**. Substituya el código generado por el siguiente código:
+Esto creará un archivo `Tag.php` en la carpeta `app/Models` de nuestro proyecto.
 
-```js title="app\Models\Proveedor.php"
+Introduzca el siguiente código para el modelo:
+
+```php
 <?php
 
 namespace App\Models;
@@ -735,59 +862,41 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Proveedor extends Model
+class Tag extends Model
 {
-    protected $table="proveedores";
     use HasFactory;
+
     protected $fillable = [
-        'nif',
-        'nombre',
-        'cod_postal',
-        'cod_provincia',
-        'calle',
-        'numero',
-        'notas'
+        'name',
     ];
-    public function productos(){
-        return $this->BelongsToMany('App\Models\Producto');
+
+    public function anuncios()
+    {
+        return $this->belongsToMany(Anuncio::class);
     }
 }
 ```
-Este es un modelo de Laravel para una tabla de **"Proveedores"**. La clase extiende de Illuminate\Database\Eloquent\Model, lo que significa que está siendo utilizada como un modelo Eloquent.
 
-El atributo **$table** especifica el nombre de la tabla en la base de datos a la que está asociada este modelo.
+#### Campos de la tabla
 
-El atributo **$fillable** especifica los campos que pueden ser asignados masivamente (por ejemplo, cuando se crea o se actualiza un registro en la tabla de "Proveedores").
+La tabla `tags` tiene los siguientes campos:
 
-El trait HasFactory proporciona una forma conveniente de crear nuevos registros en la tabla utilizando fábricas, lo que puede ser útil en desarrollo y pruebas.
+- `id`: Identificador único de la etiqueta.
+- `name`: Nombre de la etiqueta.
 
-El método productos define una relación **"muchos a muchos"** con la tabla **"Productos"**. Esta relación significa que un proveedor puede proporcionar múltiples productos y un producto puede ser proporcionado por múltiples proveedores.
+#### Relaciones
 
-Con este modelo, puedes interactuar con la tabla **"proveedores"** en la base de datos usando las capacidades de Laravel. Por ejemplo, puedes consultar registros existentes o crear nuevos registros con una llamada simple al modelo:
+El modelo `Tag` tiene la siguiente relación:
 
-```js 
-$proveedor = new Proveedor();
-$proveedor->nif = '12345678A';
-$proveedor->nombre = 'Proveedor S.A.';
-$proveedor->cod_postal = '1234';
-$proveedor->cod_provincia = '01';
-$proveedor->calle = 'Calle 1';
-$proveedor->numero = '1';
-$proveedor->notas = 'Notas adicionales';
-$proveedor->save();
-```
+- Una relación `belongsToMany` con el modelo `Anuncio`, lo que significa que una etiqueta puede estar asociada a muchos anuncios y que un anuncio puede tener muchas etiquetas asociadas. Para establecer esta relación, en el modelo `Tag` debemos incluir el siguiente método:
 
-También puedes consultar registros existentes de la tabla de "Proveedores" de la siguiente manera:
+  ```php
+  public function anuncios()
+  {
+      return $this->belongsToMany(Anuncio::class);
+  }
+  ```
 
-```js
-$proveedores = Proveedor::all();
-```
+  En esta relación se utiliza el método `belongsToMany` para indicar que un anuncio puede tener muchas etiquetas asociadas y que una etiqueta puede estar asociada a muchos anuncios. Laravel maneja esta relación a través de una tabla pivote, que debe tener el nombre de los modelos en orden alfabético y en plural, por lo que en este caso la tabla pivote debería ser `anuncio_tag`.
 
-Esto te dará una colección de todos los registros en la tabla "proveedores". Además, puedes acceder a los productos asociados con un proveedor determinado de la siguiente manera:
-
-```js
-$proveedor = Proveedor::find(1);
-$productos = $proveedor->productos;
-```
-
-Esto te dará una colección de todos los productos asociados con el proveedor con id 1.
+  Laravel también asume que la tabla pivote tiene dos campos: `anuncio_id` y `tag_id`, que se utilizan como claves foráneas para la relación. Si estos nombres no se corresponden con los nombres de las claves foráneas en la tabla pivote, podemos pasarlos como segundo y tercer parámetro del método `belongsToMany`, respectivamente.
