@@ -1,9 +1,7 @@
 ---
-sidebar_position: 6
+sidebar_position: 21
 ---
-# Rutas y controladores
-
-## Introducción
+# Introducción
 
 Las rutas y los controladores son dos componentes esenciales en el desarrollo de aplicaciones web en Laravel. Las rutas son las encargadas de recibir las solicitudes HTTP y redirigirlas a los controladores correspondientes, que son los encargados de manejar la lógica de la aplicación y devolver una respuesta al usuario.
 
@@ -24,13 +22,3 @@ Por ejemplo, cuando haces clic en un botón en una página web para agregar un p
 
 Así que, en resumen, las rutas y los controladores son como las direcciones y los conductores que te llevan a donde quieres ir en una ciudad grande. En una aplicación web, las rutas te indican a qué página acceder y los controladores procesan la información para hacer que la página funcione correctamente.
 :::
-
-## Rutas
-
-### ¿Qué son y para que sirven?
-
-Las rutas en Laravel son esencialmente URLs que se asocian a diferentes acciones dentro de la aplicación. Estas URLs representan direcciones web que se pueden visitar en el navegador para acceder a diferentes funcionalidades. Por ejemplo, si estás construyendo una aplicación de comercio electrónico, podrías tener una ruta que represente la página de inicio de tu tienda virtual, otra ruta que represente la página del catálogo de productos y otra que represente la página de pago.
-
-Cada ruta puede tener una acción asociada a ella, y esta acción se define en un controlador. Un controlador es una clase PHP que se utiliza para agrupar la lógica relacionada con una determinada funcionalidad. Por ejemplo, si tienes una ruta que representa la página de inicio de tu tienda virtual, podrías tener un controlador que se encargue de cargar los datos necesarios para esa página y devolver una vista que se mostrará en el navegador.
-
-En resumen, las rutas y los controladores son elementos esenciales en Laravel porque permiten que tu aplicación web tenga una estructura bien definida y organizada. Las rutas permiten que los usuarios accedan a diferentes funcionalidades a través de URLs intuitivas y fáciles de entender, mientras que los controladores se encargan de manejar la lógica detrás de cada una de estas funcionalidades.

@@ -28,4 +28,10 @@
 6. Conclusión
    - Resumir la importancia de las rutas y los controladores en Laravel.
    - Mostrar cómo la separación de la lógica de la aplicación en diferentes rutas y controladores puede mejorar la mantenibilidad y la escalabilidad de la aplicación.
-   - Señalar que Laravel ofrece muchas herramientas para trabajar con rutas y controladores, y que estas herramientas pueden ser utilizadas para crear aplicaciones web eficientes y escalables.
+   - Señalar que Laravel ofrece muchas herramientas para trabajar con rutas y controladores, y 
+   que estas herramientas pueden ser utilizadas para 
+   crear aplicaciones web eficientes y escalables.
+
+   ### ¿Cómo se crean?
+
+   
