@@ -1,0 +1,8 @@
+{
+  "label": "Calidad del Software",
+  "position": 50,
+  "link": {
+    "type": "generated-index",
+    "description": "Rutas y controladores."
+  }
+}
