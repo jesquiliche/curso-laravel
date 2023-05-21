@@ -15,7 +15,7 @@ comando en su consola.
 
 ## Instalar LAMP
 
-Si no dispone de ningún entorno de programción PHP como Laragon, WAMPP, 
+Si no dispone de ningún entorno de programación PHP como Laragon, WAMPP, 
 puedes instalar XAMPP. Esta aplicación te instalara el lenguaje programación
 PHP, el servidor HTTP Apache y la BB.DD MySQL.
 
@@ -135,6 +135,33 @@ En nuestro ejemplo utilzaremos como base de anuncios, esta debera estar creada a
 :::
 
 6. Ejecute el comando php artisan migrate si todavia no lo ha ejecutado.
+
+## Traducir Laravel al español
+
+Laravel se instala por defecto en idioma Ingles, si desea que laravel trabaje en idioma español
+deberá seguir los siguientes pasos:
+
+1.- En su archivo **App\config\app.php** debera cambiar la siguiente linea:
+
+```php
+ 'locale' => 'en',
+ ```
+ Por esta otra:
+```php
+ 'locale' => 'es',
+```
+2.- Deberá instalar a traves de composer el paquete Laravel-lang y 
+ejecutar los siguientes comandos desde su terminal.
+
+```bash
+composer require laravel-lang/common --dev
+
+php artisan lang:add es
+
+php artisan lang:update
+```
+Con esto ya tendra traducido su aplicación Laravel 10 al Español.
+
 
 ## Iniciar el servidor
 

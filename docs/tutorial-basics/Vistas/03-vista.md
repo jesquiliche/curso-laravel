@@ -11,7 +11,7 @@ Vamos a entrar de lleno en la definición de este formulario, el cual se encuent
 
 ![Busqueda](/img/busqueda.png)
 
-```php
+```html title='Formulario de búsqueda'
 <form action="{{ route('home.filter') }}" method="POST">
     @csrf
     <div class="row">

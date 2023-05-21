@@ -6,7 +6,7 @@ sidebar_position: 1
 
 ## ¿Qué son las vistas Blade?
 
-Las vistas Blade son un sistema de plantillas en Laravel, un popular framework de desarrollo web en PHP. Blade proporciona una sintaxis elegante y eficiente para crear y renderizar las vistas en Laravel.
+Las vistas Blade son un sistema de plantillas en Laravel. Blade proporciona una sintaxis elegante y eficiente para crear y renderizar las vistas en Laravel.
 
 Las vistas Blade permiten combinar código PHP con marcado HTML de una manera más legible y estructurada. Proporcionan una forma de separar la lógica de presentación de la lógica de negocio en una aplicación web.
 

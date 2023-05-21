@@ -42,9 +42,10 @@ Por ejemplo, puedes tener un archivo llamado `layout.blade.php` que contiene la 
 Luego, en cada página que desees utilizar este layout, puedes extenderlo utilizando la directiva `@extends` y definir el contenido específico de esa página dentro de una sección utilizando la directiva `@section`. Por ejemplo:
 
 ```html
-@extends('layout') @section('content')
-<h1>Bienvenido a mi sitio web</h1>
-<p>Este es el contenido de la página de inicio.</p>
+@extends('layout')
+@section('content')
+    <h1>Bienvenido a mi sitio web</h1>
+    <p>Este es el contenido de la página de inicio.</p>
 @endsection
 ```
 
@@ -169,7 +170,7 @@ A continuación presentaremos el Layout básico que servirá como plantilla base
 ```
 ### Sección head
 
-````
+```html
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -205,11 +206,11 @@ A continuación presentaremos el Layout básico que servirá como plantilla base
     <!-- Incluye los estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/anuncios.css') }}">
 
-    @yield('estilos')
+    @yield('css')
     <!-- Incluye estilos específicos de la vista actual -->
 </head>
 ````
-Este código corresponde a la sección `<head>` de un documento HTML. Aquí se definen las configuraciones y elementos relacionados con la presentación y estilos de la página. Veamos una explicación sencilla de cada parte:
+Este código corresponde a la sección `<head>` de nuestro Laayout. Aquí se definen las configuraciones y elementos relacionados con la presentación y estilos de la página. Veamos una explicación sencilla de cada parte:
 
 - `<meta charset="utf-8">`: Especifica el conjunto de caracteres utilizado en la página, en este caso, UTF-8, que es compatible con varios idiomas.
 
@@ -229,7 +230,7 @@ Este código corresponde a la sección `<head>` de un documento HTML. Aquí se d
 
 - `<link rel="stylesheet" href="{{ asset('css/anuncios.css') }}">`: Incluye un archivo de estilos personalizados llamado `anuncios.css` ubicado en la carpeta `css` dentro del proyecto. La función `asset()` se utiliza para generar la URL correcta del archivo.
 
-- `@yield('estilos')`: Es una directiva de Blade (un motor de plantillas en Laravel) que permite incluir estilos específicos de la vista actual. Esto significa que puedes agregar estilos adicionales en las secciones de contenido que heredan de esta plantilla.
+- `@yield('css')`: Es una directiva de Blade (un motor de plantillas en Laravel) que permite incluir estilos específicos de la vista actual. Esto significa que puedes agregar estilos adicionales en las secciones de contenido que heredan de esta plantilla.
 
 En resumen, esta sección del código establece las configuraciones básicas del documento, incluye estilos y scripts externos necesarios, y permite la inclusión de estilos personalizados y específicos de cada vista.
 
@@ -323,7 +324,7 @@ Este código crea una barra de navegación con enlaces y opciones de menú despl
 
 ### Directivas más comunes en los Layouts
 
-Mis disculpas por la confusión. Aquí tienes un resumen de las directivas Blade comunes que se pueden utilizar en los layouts de Laravel:
+Aquí tienes un resumen de las directivas Blade comunes que se pueden utilizar en los layouts de Laravel:
 
 1. `@yield('nombre_seccion')`: Esta directiva se utiliza para definir una sección en el layout donde el contenido de una vista específica será insertado. Se coloca en el lugar donde se desea que aparezca el contenido de la sección.
 
@@ -341,7 +342,7 @@ Estas son algunas de las directivas Blade comunes que se utilizan en los layouts
 
 ## Creando nuestra página de inicio (Home)
 
-A continuación procederemos a crear nuestra página de inicio de la aplicación, la cual se muestra en la siguiente captura de pantalla.
+A continuación procederemos a cambiar la página de inicio de la aplicación, la cual se muestra en la siguiente captura de pantalla.
 
 ![Pagina Home](/img/home.png)
 
@@ -578,6 +579,191 @@ Como conclusión, esta sección de contenido incluye un formulario de búsqueda,
         </div>
     </section>
 @endsection
+```
+### Aspectos programáticos de la página
+
+En nuestra página aparecen varias directivas como `@foreach` que se encargan de construir dinámicamente listas de la página como las subcategorías.
+
+```html title=Lista de categorías
+<select name="subcategoria_id" class="form-control">
+    <!-- Iteración sobre las categorías -->
+    @foreach ($categorias as $categoria)
+        <optgroup label="{{ $categoria->nombre }}">
+            <!-- Iteración sobre las subcategorías -->
+            @foreach ($categoria->subcategorias as $subcategoria)
+                <option value="{{ $subcategoria->id }}">{{ $subcategoria->nombre }}</option>
+            @endforeach
+        </optgroup>
+    @endforeach
+</select>
+```
+
+El código muestra un menú desplegable `<select>` en un formulario. Este menú se crea utilizando dos bucles `foreach` anidados.
+
+1. El primer bucle `foreach` recorre una lista de categorías (`$categorias`) y crea un grupo `<optgroup>` para cada categoría. La etiqueta del grupo `<optgroup>` muestra el nombre de la categoría.
+
+2. El segundo bucle `foreach` recorre las subcategorías asociadas a cada categoría actual y crea una opción `<option>` para cada una. El valor de cada opción es el ID de la subcategoría, y el texto visible es el nombre de la subcategoría.
+
+En resumen, el código genera un menú desplegable que muestra todas las subcategorías agrupadas por categoría. Esto permite al usuario seleccionar una subcategoría específica dentro de una categoría determinada en el formulario.
+
+El resultado lo puedes observar en la siguiente imagen:
+
+![Lista de categoria](/img/categorias.png)
+
+### Carrusel de categorías 
+
+![Carrusel](/img/carrusel.png)
+
+```html title=Carrusel
+    <div id="carouselExample" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <!-- Iteración sobre las categorías en grupos de cuatro -->
+                    @foreach ($categorias->chunk(4) as $categoriasChunk)
+                        <div class="carousel-item col-lg-12 {{ $loop->first ? 'active' : '' }}">
+                            <div class="row">
+                                <!-- Iteración sobre las categorías del grupo -->
+                                @foreach ($categoriasChunk as $categoria)
+                                    <div class="col-sm-6 col-md-4 col-lg-3">
+                                        <img src="{{ $categoria->imagen }}" width="100" height="180" class="d-block w-100" alt="{{ $categoria->nombre }}">
+                                        <div class="carousel-caption">
+                                            <h5>{{ $categoria->nombre }}</h5>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only"><b>Anterior</b></span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExample" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only"></span>
+                </a>
+            </div>
+```
+
+Este código representa un carrusel de imágenes en nuestra página web. Veamos cómo funciona:
+
+1. `<div id="carouselExample" class="carousel slide" data-ride="carousel">`: Este es el contenedor principal del carrusel. Tiene un identificador único (`id="carouselExample"`) y una clase llamada `carousel`. Esto permite que el carrusel funcione de manera automática.
+
+2. `<div class="carousel-inner">`: Este es el contenedor que alberga las imágenes del carrusel. Cada imagen se muestra en un elemento llamado `carousel-item`.
+
+3. `@foreach ($categorias->chunk(4) as $categoriasChunk)`: Esta línea indica que se va a recorrer una lista de categorías y se agruparán en grupos de cuatro.
+
+4. `<div class="carousel-item col-lg-12">`: Este es el contenedor de cada grupo de imágenes en el carrusel. Se le da una clase llamada `carousel-item`, y `col-lg-12` indica que ocupará todo el ancho disponible en dispositivos grandes.
+
+5. `@foreach ($categoriasChunk as $categoria)`: Aquí se recorre cada categoría dentro del grupo actual.
+
+6. `<div class="col-sm-6 col-md-4 col-lg-3">`: Este es el contenedor de cada imagen y leyenda en el carrusel. Se le da una clase que define el tamaño y la disposición de las columnas en diferentes tamaños de pantalla.
+
+7. `<img src="{{ $categoria->imagen }}" width="100" height="180" alt="{{ $categoria->nombre }}">`: Esta etiqueta `<img>` muestra la imagen de cada categoría. La URL de la imagen se toma de la variable `$categoria->imagen`. También se especifica el ancho (`width`) y la altura (`height`) de la imagen, y se muestra el nombre de la categoría como texto alternativo (`alt`).
+
+8. `<div class="carousel-caption">`: Este es el contenedor de la leyenda de cada imagen. En este caso, muestra el nombre de la categoría.
+
+9. Los enlaces para controlar el carrusel: `<a class="carousel-control-prev">` y `<a class="carousel-control-next">`. Estos enlaces permiten al usuario avanzar y retroceder entre las imágenes del carrusel.
+
+En definitiva, el código crea un carrusel de imágenes en el que las imágenes se agrupan por categorías y se muestran en grupos de cuatro. Cada imagen tiene su nombre como leyenda y se puede navegar entre las imágenes utilizando los controles de avance y retroceso.
+
+### Anuncios
+
+![Anuncios](/img/Anuncios.png)
+
+```html title=Código de la sección de anuncios
+    <div class="container-fluid mt-3 col-lg-12 mx-auto">
+    <h4 class="text-center resaltado"><b>Anuncios</b></h4>
+    <div class="row">
+        <!-- Iteración sobre los anuncios -->
+        @foreach ($anuncios as $anuncio)
+            <div class="card3 col-lg-4 mx-auto">
+                <a href="/anuncios/{{ $anuncio->id }}">
+                    <div class="card-title m-1">
+                        <p class="resaltado">{{ $anuncio->titulo }}</b></p>
+                    </div>
+                    <div class="card-body m-1">
+                        precio : <b>{{ $anuncio->precio }}</b>
+                        <img src="{{ $anuncio->imagen }}" class="d-block w-100" alt="{{ $anuncio->titulo }}">
+                        <p>{{ $anuncio->description }}</p>
+                    </div>
+                </a>
+            </div>
+        @endforeach
+
+        <div class="pagination">
+            <!-- Mostrar botón "Anterior" si hay una página anterior disponible -->
+            @if ($anuncios->currentPage() > 1)
+                <a href="{{ $anuncios->previousPageUrl() }}" class="btn btn-danger m-1" rel="prev">Anterior</a>
+            @endif
+
+            <!-- Iteración sobre las páginas disponibles -->
+            @foreach(range(1, $anuncios->lastPage()) as $page)
+                <!-- Resaltar la página actual -->
+                @if ($page == $anuncios->currentPage())
+                    <span class="btn btn-success m-1 active">{{ $page }}</span>
+                @else
+                    <!-- Mostrar enlace a la página correspondiente -->
+                    <a href="{{ $anuncios->url($page) }}" class=" m-1 mt-2">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            <!-- Mostrar botón "Siguiente" si hay una página siguiente disponible -->
+            @if ($anuncios->hasMorePages())
+                <a href="{{ $anuncios->nextPageUrl() }}" class="btn btn-danger m-1" rel="next">Siguiente</a>
+            @endif
+        </div>
+    </div>
+</div>
+```
+El código muestra una sección de anuncios con su título, precio, imagen y descripción. También incluye una paginación para navegar entre los anuncios. En este caso como estamos utilizando bootstrap hemos optado por una paginación personalizada, en caso de querer utilizar la paginación estándar de Laravel puede leer el recuadro de informativo.
+
+- La sección principal está dentro de un contenedor y muestra el título "Anuncios".
+
+- Cada anuncio se muestra en una tarjeta individual con su título, precio, imagen y descripción.
+
+- Al hacer clic en el enlace del anuncio, se redirecciona a una página con más detalles sobre ese anuncio.
+
+- Al final de la sección de anuncios, hay una paginación que permite navegar entre las diferentes páginas de anuncios. Se muestra un botón "Anterior" si hay una página anterior disponible y un botón "Siguiente" si hay una página siguiente disponible. También se muestran números de página para acceder directamente a una página específica.
+
+Esta paginación te permite moverte por los anuncios de forma más cómoda y rápida, especialmente cuando hay muchos anuncios en la lista.Claro, aquí tienes una explicación más sencilla y funcional de ese fragmento de código:
+
+:::info como funciona la páginación en Laravel
+
+La paginación en Laravel es un mecanismo incorporado que te permite dividir y mostrar grandes conjuntos de datos en varias páginas. Esto es útil cuando tienes una gran cantidad de registros y deseas mostrarlos de forma ordenada y accesible para el usuario.
+
+En Laravel, la paginación se realiza utilizando el método `paginate()` en una consulta de Eloquent o en una colección de resultados. Aquí tienes una explicación básica de cómo funciona:
+
+1. En tu controlador, realizas una consulta a la base de datos o obtienes una colección de resultados que deseas paginar.
+
+2. Utilizas el método `paginate()` en tu consulta o colección y le pasas el número de elementos que deseas mostrar por página. Por ejemplo, `$anuncios = Anuncio::paginate(10);` indica que deseas mostrar 10 anuncios por página.
+
+3. Laravel automáticamente divide los resultados en páginas basadas en el número de elementos por página que especificaste. Cada página contiene una porción de los resultados totales.
+
+4. Laravel devuelve un objeto `LengthAwarePaginator` que contiene los resultados paginados y proporciona métodos útiles para trabajar con la paginación, como `currentPage()`, `lastPage()`, `hasMorePages()`, entre otros.
+
+5. En tu vista, puedes acceder a los resultados de la paginación utilizando el objeto `LengthAwarePaginator`. Por ejemplo, `$anuncios->items()` te dará una colección de los anuncios para mostrar en la página actual.
+
+6. Puedes iterar sobre los resultados y mostrarlos en tu vista.
+
+7. Para mostrar los enlaces de paginación, puedes utilizar el método `links()` en el objeto `LengthAwarePaginator`. Este método genera los enlaces HTML necesarios para navegar entre las diferentes páginas.
+
+8. Al hacer clic en los enlaces de paginación, Laravel se encarga de cargar y mostrar los resultados de la página seleccionada.
+
+En resumen, en Laravel 10, puedes utilizar el método `paginate()` para realizar la paginación de tus resultados. Laravel se encarga de manejar la división de los resultados y generar los enlaces de paginación necesarios. Esto hace que sea más fácil y eficiente mostrar y navegar a través de grandes conjuntos de datos en tu aplicación Laravel.
+:::
+
+Aquí tienes el código del controlador encargado de la paginación anteriormente comentada:
+
+```php title=HomeController
+class HomeController extends Controller
+{
+    public function index(){
+        $categorias = Categoria::with('subcategorias')->get();
+        $anuncios = Anuncio::paginate(3);
+
+        return view('home',compact('categorias','anuncios'));
+    }
 ```
 
 ## Estableciendo Home como página de Inicio
