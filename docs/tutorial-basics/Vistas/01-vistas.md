@@ -55,7 +55,7 @@ La utilización de layouts en Laravel te permite mantener una estructura consist
 
 ## Creando nuestro primer Layout
 
-A continuación presentaremos el Layout básico que servirá como plantilla base para nuestra aplicación. Si presta atención al Layout observara que existen dos directivas **@yield**, la primera permite definir estilos CSS para cada una de nuestras vistas y **@yield('conten')** que nos permite definir el contenido especifico de cada una de nuestras primera vistas. Este Layout lo iremos modificando a medida que vayamos avanzando en este curso.
+A continuación presentaremos el Layout básico que servirá como plantilla base para nuestra aplicación. Si presta atención al Layout observara que existen dos directivas **@yield**, la primera permite definir estilos CSS para cada una de nuestras vistas y **@yield('content')** que nos permite definir el contenido especifico de cada una de nuestras primera vistas. Este Layout lo iremos modificando a medida que vayamos avanzando en este curso.
 
 ```html
 <!DOCTYPE html>
