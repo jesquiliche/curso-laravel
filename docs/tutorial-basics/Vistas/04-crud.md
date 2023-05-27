@@ -1,8 +1,12 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Operaciones CRUD
+
+## Lo que aprenderás en este capítulo
+
+En este capítulo aprenderás a realizar las operaciones CRUD (Crear, Leer, Actualizar y Borrar) de anuncios. Para ello, crearemos las vistas correspondientes. Además, aprenderemos a utilizar **Laravel Collective** para crear nuestros formularios y el plugin JavaScript **DropZone** para subir imágenes al servidor mediante la funcionalidad de arrastrar y soltar. También exploraremos cómo realizar transacciones.
 
 ## ¿Qué es un CRUD?
 
@@ -705,3 +709,634 @@ En definitiva, este método se encarga de validar y procesar una imagen enviada 
 Ahora si consultamos nuestra base de datos de Anuncios y consultamos la tabla **fotos** podremos observar commo se han insertado 5 anuncios.
 
 ![Tabla fotos](/img/fotos_insertadas.png)
+
+## Editar y borrar anuncios
+
+En esta sección nos concentraremos en la parte edición y borrado de anuncios. Estas operaciones están restringidas solo a usuarios registrados como pudimos ver en la sección de publicación de anuncios, sin embargo estas operaciones también contemplan algunas restricciones más, como que solo pueden borrar y editar anuncios los usuarios propietarios del anuncio, así como los administradores.
+
+### Modificando nuestra vista Home
+
+![Anuncios](/img/anuncios_editar.png)
+
+En esta vista podemos observar como en el tercer anuncio, en la parte superior aparece un icono. Este icono indica que este anuncio puede ser editado y borrado por el usuario actualmente autenticado, ya que es el propietario de este anuncio.
+
+Para añadir esta nueva característica, deberemos modificar el código de la vista Home e introducir las siguientes modificaciones en la parte que corresponda.
+
+```html
+ @foreach ($anuncios as $anuncio)
+    <div class="card3 col-lg-4 mx-auto">
+        <a href="/anuncios/{{ $anuncio->id }}">
+            <div class="card-title m-1">
+                <p class="resaltado">
+                    <!-- Si el usuario esta autenticado -->
+                    @auth
+                        <!-- Si el propietario del anuncio coincide con
+                            el usuario utenticado -->
+                        @if (auth()->user()->id == $anuncio->user_id)
+                            <i class="fas fa-edit mr-1"></i>
+                        @endif
+                    @endauth
+                    {{ $anuncio->titulo }}</p>
+            </div>
+            <div class="card-body m-1">
+                
+                <img src="{{ $anuncio->imagen }}" class="d-block w-100 rounded" alt="{{ $anuncio->titulo }}">
+                <p>{{ $anuncio->description }}</p>
+                precio : <b>{{ $anuncio->precio ."€"}}</b>
+            </div>
+        </a>
+    </div>
+@endforeach
+```
+#### ¿Qué hace el código?
+
+Aquí está una descripción simplificada de lo que hace:
+
+- Para cada anuncio en la lista de anuncios:
+  - Se muestra una tarjeta que contiene el título, la imagen, la descripción y el precio del anuncio.
+  - Si el usuario está autenticado y es el propietario del anuncio, se muestra un icono de edición junto al título.
+  - El título del anuncio es un enlace que lleva al usuario a la página del anuncio específico.
+  - La imagen del anuncio se muestra con un borde redondeado y ocupa todo el ancho de la tarjeta.
+  - La descripción y el precio del anuncio se muestran debajo de la imagen.
+
+En resumen, el código genera una interfaz visualmente agradable para mostrar una lista de anuncios, con opciones de edición para los propietarios de los anuncios.
+
+### Modificando la vista anuncios.show
+
+ A esta vista le vamos a introducirle un par de modificaciones como se puede observar
+ en la imagen:
+
+![Anuncio.show](/img/anuncio_edit.png)
+
+Notará que a parte de ampliar y formatear datos en la cabecera en la tarjeta del producto hemos introducido dos botones nuevo. Uno para editar y borrar. Estos botones solo se muestran
+si el usuario esta autenticado y es propietario del anuncio. El código asociado a esta vista quedaría así.
+
+```html title='anuncios.show'
+@extends('layout.layout')
+
+@section('title', 'Página de inicio')
+
+@section('content')
+    <section class="container mt-8 ">
+        <div class="card col-lg-10 mx-auto">
+            <!-- 
+                Solo si el usuario esta autenticado -->
+            @auth
+                <!-- Si el usuario autenticado coincidde con
+                    el propietario del anuncios -->
+                @if (auth()->user()->id == $anuncio->user_id)
+                    <div class="row m-2">
+                        <div class="col-sm-2 mt-1">
+                            <!-- Botón para editar el anuncio -->
+                            <a href="{{ route('anuncios.edit', ['id' => $anuncio->id]) }}"
+                                class="btn btn-danger col-sm-12">Editar</a>
+                        </div>
+                        <form action="{{ route('anuncios.delete', ['id' => $anuncio->id]) }}" method="POST" class="col-sm-2">
+                            @csrf
+                            @method('DELETE')
+                            <!-- Botón para borrar el anuncio -->
+                            <button type="submit" class="btn btn-danger col-sm-12 m-1">Borrar</button>
+                        </form>
+
+                    </div>
+                @endif
+            @endauth
+            <div class="card-header m-1">
+                <h4 class="resaltado text-center"><b>{{ $anuncio->titulo }}</b></h4>
+                <h5>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p><b>Estado:</b> {{ $anuncio->estado->nombre }}</p>
+                            <p>Categoría: <b>{{ $anuncio->subcategoria->categoria->nombre }}</b></p>
+                            <p>SubCategoría: <b>{{ $anuncio->subcategoria->nombre }}</b></p>
+                        </div>
+                        <div class="col-lg-6">
+                            <p>Precio: <b>{{ $anuncio->precio . '€' }}</b></p>
+                            <p>Teléfono: <b>{{ $anuncio->telefono }}</b></p>
+                            <p>Provincia: <b>{{ $provincia->nombre }}</b></p>
+                            <p>Población: <b>{{ $poblacion->nombre }}</b></p>
+                        </div>
+                </h5>
+            </div>
+            <div class="card-body m-1">
+                <div class="container mt-4">
+                    <h5>{{ $anuncio->description }}</h5>
+                </div>
+                <!-- Imagen principal del anuncio -->
+                <img src="{{ $anuncio->imagen }}" class="d-block w-100" alt="{{ $anuncio->titulo }}">
+                <div class="card3 mx-auto mt-1">
+                    <div class="row">
+                        <!-- Bucle para mostrar las fotos adicionales del anuncio -->
+                        @foreach ($anuncio->fotos as $foto)
+                            <div class="card3 col-lg-3 mx-auto mt-3">
+                                <img src="{{ $foto->path }}" alt="Foto del anuncio" width="180px" class="zoom">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+@endsection
+```
+
+Este código hace lo siguiente:
+
+
+- Muestra los detalles del anuncio, incluyendo el título, estado, categoría, subcategoría, precio, teléfono, provincia y población.
+- Muestra la descripción del anuncio.
+- Muestra la imagen principal del anuncio.
+- Muestra las fotos adicionales del anuncio en tarjetas individuales.
+- Si el usuario autenticado es el propietario del anuncio, muestra los botones de "Editar" y "Borrar" para el anuncio.
+
+## Editar anuncio
+
+La vista de edición de anuncios nos permite editar todos los datos del anuncio, cambiar la imagen principal del anuncio, añadir y borrar imágenes al anuncio.
+
+![Vista editar](/img/vista_editar.png)
+
+A continuación muestro el código de esta vista, el cual iremos analizando a lo largo de esta sección.
+
+```html title='anuncios.edit'
+
+@extends('layout.layout')
+
+@section('title', 'Editar aanuncio')
+
+@section('content')
+
+    <div class="card2 col-lg-10 mx-auto mt-8 p-4">
+        <h4 class="text-center resaltado"><b>Editar anuncio<b></h4>
+        @if ($errors->any())
+            <!-- Muestra los errores de validación -->
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <!-- Formulario de edición de datos,
+            rellena los controles cob los valores del anuncio,
+            utiliza el método PUT para utilizar y el enctype`multipart/form-data'
+            para poder subir imagenres -->
+        {!! Form::open([
+            'route' => ['anuncios.update', $anuncio->id],
+            'method' => 'PUT',
+            'enctype' => 'multipart/form-data',
+        ]) !!}
+        <!-- CRSF token -->
+        {!! Form::token() !!}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    {!! Form::label('titulo', 'Título', ['class' => 'text-sm']) !!}
+                    {!! Form::text('titulo', $anuncio->titulo, ['class' => 'form-control', 'required']) !!}
+                    @error('titulo')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <img id="preview-image" src="{{ $anuncio->imagen }}" class="d-block col-lg-10"
+                        alt="{{ $anuncio->titulo }}">
+                    {!! Form::label('imagen', 'Imagen') !!}
+                    {!! Form::file('imagen', [
+                        'class' => 'form-control-file',
+                        'accept' => 'image/*',
+                        'max' => '2048',
+                        'id' => 'image-input',
+                    ]) !!}
+                    <!-- Mostrar errores de validación -->
+                    @error('imagen')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    {!! Form::label('subcategoria_id', 'Categoría') !!}
+                    {!! Form::select(
+                        'subcategoria_id',
+                        $categorias->flatMap(function ($categoria) {
+                            return [$categoria->nombre => $categoria->subcategorias->pluck('nombre', 'id')];
+                        }),
+                        $anuncio->subcategoria_id,
+                        ['class' => 'form-control'],
+                    ) !!}
+                     <!-- Mostrar errores de validación -->
+                    @error('subcategoria_id')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    {!! Form::label('estado_id', 'Estado') !!}
+                    {!! Form::select('estado_id', $estados->pluck('nombre', 'id'), $anuncio->id, [
+                        'class' => 'form-control',
+                        'required',
+                    ]) !!}
+                    <!-- Mostrar errores de validación -->
+                    @error('estado_id')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    {!! Form::label('description', 'Descripción') !!}
+                    {!! Form::textarea('description', $anuncio->description, ['class' => 'form-control', 'rows' => 5, 'required']) !!}
+                    @error('description')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    {!! Form::label('telefono', 'Teléfono') !!}
+                    {!! Form::tel('telefono', $anuncio->telefono, ['class' => 'form-control', 'required']) !!}
+                    @error('telefono')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    {!! Form::label('provincia', 'Provincia') !!}
+                    {!! Form::select('provincia', $provincias->pluck('nombre', 'codigo'), $anuncio->provincia, [
+                        'class' => 'form-control',
+                        'required',
+                    ]) !!}
+                    @error('provincia')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    {!! Form::label('poblacion', 'Población') !!}
+                    {!! Form::select('cod_postal', $poblaciones->pluck('nombre', 'codigo'), $anuncio->cod_postal, [
+                        'class' => 'form-control',
+                        'required',
+                    ]) !!}
+                    @error('cod_postal')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    {!! Form::label('precio', 'Precio') !!}
+                    {!! Form::number('precio', $anuncio->precio, ['class' => 'form-control', 'required']) !!}
+                    @error('precio')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    {!! Form::submit('Actualizar', ['class' => 'btn btn-danger mx-auto']) !!}
+                    {!! Form::close() !!}
+                </div>
+
+            </div>
+            </div>
+            <div class="card3 mx-auto mt-1">
+                <div class="row">
+                    <!-- Mostrar todas las imágnenes opcionales asociadas
+                        al anuncio -->
+                    @foreach ($anuncio->fotos as $foto)
+                        <div class="card3 col-lg-3 mx-auto mt-3">
+                            <img src="{{ $foto->path }}" alt="Foto del anuncio" width="180px" class="zoom mx-auto">
+                            <!-- Anadir opcion de poder borrar la imagen -->
+                            <div class="text-center">
+                                <form action="{{ route('fotos.destroy', ['id' => $foto->id]) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger mt-2 ml-6 btn-block">Borrar</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="form-group">
+                    <h4 class="text-center resaltado mt-4">¿Desea incluir más imágenes?</h4>
+                    <!-- DropZone -->
+                    <!-- Permite anadir imagenes solo con arrastrar y soltar -->
+                    <form action="{{ route('fotos.store') }}" method="POST" enctype="multipart/form-data" class="dropzone"
+                        id="myDropzone">
+                        @csrf
+                        <input type="hidden" name="anuncio_id" value="{{ $anuncio->id }}">
+                    </form>
+                </div>
+
+        </div>
+    </div>
+@endsection
+
+
+@section('css')
+    <!-- Estilos de DropZone-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.css"
+        crossorigin="anonymous" />
+@endsection
+
+@section('js')
+    <script>ç
+        // Permite cambiar la imagen principal del anuncio y
+        //    hace un preview 
+        document.getElementById('image-input').addEventListener('change', function(e) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('preview-image').src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+    </script>
+    <!-- opciones para Dropzzne -->
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+      <script>
+          Dropzone.options.myDropzone = {
+              //Como se llamara al campo el resquest
+              paramName: 'imagen',
+              maxFilesize: 2, <!-- Tamaño máximo del archivo en megabytes -->
+              acceptedFiles: '.jpg, .jpeg, .png', <!-- Tipos de archivo aceptados -->
+              dictDefaultMessage: 'Arrastra los archivos aquí para subirlos',
+              maxFiles: 6, <!-- Límite máximo de archivos -->
+              init: function() {
+                  this.on('error', function(file, errorMessage) {
+                      // Manejar errores de carga de archivos aquí
+                  });
+              },
+          };
+      </script>
+  
+@endsection
+```
+#### Análisis del código
+
+1. La directiva `@extends('layout.layout')` indica que la vista utiliza la plantilla de diseño `layout.layout`.
+
+2. Las directivas `@section('title', 'Editar anuncio')` y `@section('content')` definen el título de la página y el contenido principal de la vista, respectivamente.
+
+3. El bloque `@if ($errors->any())` verifica si hay errores de validación y, si es así, muestra una alerta de color rojo con los mensajes de error.
+
+4. El formulario principal para editar los datos del anuncio está dentro del bloque `{!! Form::open(...) !!}` y se cierra con `{!! Form::close() !!}`. Este formulario utiliza el método PUT para enviar los datos y el atributo `enctype` establecido en `'multipart/form-data'` para permitir la carga de imágenes.
+
+5. El campo de entrada de texto para el título del anuncio está controlado por el control `Form::text('titulo', ...)`. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+6. La etiqueta `<img>` y el campo de carga de archivo `Form::file('imagen', ...)` están relacionados con la imagen del anuncio. La imagen se muestra en la etiqueta `<img>` y se puede cambiar seleccionando un archivo en el campo de carga de archivo. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+7. El menú desplegable para seleccionar la categoría del anuncio está controlado por el control `Form::select('subcategoria_id', ...)`. Las opciones del menú se generan a partir de una colección de categorías y subcategorías. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+8. El menú desplegable para seleccionar el estado del anuncio está controlado por el control `Form::select('estado_id', ...)`. Las opciones del menú se generan a partir de una colección de estados. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+9. El campo de texto para la descripción del anuncio está controlado por el control `Form::textarea('description', ...)`. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+10. El campo de entrada de teléfono está controlado por el control `Form::tel('telefono', ...)`. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+11. Los menús desplegables para seleccionar la provincia y la población del anuncio están controlados por los controles `Form::select('provincia', ...)` y `Form::select('cod_postal', ...)`, respectivamente. Las opciones de los menús se generan a partir de colecciones de provincias y poblaciones. Si hay errores de validación para estos campos, se muestran mensajes de error.
+
+12. El campo de entrada numérico para el precio del anuncio está controlado por el control `Form::number('precio', ...)`. Si hay errores de validación para este campo, se muestra un mensaje de error.
+
+13. El botón "Actualizar" para enviar los datos del formulario está controlado por el control `Form::submit('Actualizar', ...)`.
+
+14. La sección que muestra las imágenes asociadas al anuncio se encuentra en un bucle `@foreach ($anuncio->fotos as $foto)`. Cada imagen
+
+ se muestra en una tarjeta individual junto con un botón "Borrar". El formulario para eliminar la imagen está controlado por el control `Form::submit('Borrar', ...)`.
+
+15. La sección adicional que permite cargar más imágenes utiliza la biblioteca Dropzone y se encuentra dentro del bloque `<div id="dropzone">`.
+
+### scripts js
+
+```js
+ <script>
+    // Permite cambiar la imagen principal del anuncio y
+    //    hace un preview 
+    document.getElementById('image-input').addEventListener('change', function(e) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('preview-image').src = event.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    });
+</script>
+```
+Este código JavaScript se encarga de proporcionar una funcionalidad de vista previa de imagen. Cuando seleccionas una imagen en el campo de carga (identificado como 'image-input'), se dispara el evento 'change'. Dentro de la función manejadora de eventos, se crea un objeto FileReader que permite leer el contenido del archivo seleccionado. Luego, se establece una función de devolución de llamada (onload) para ejecutar cuando la lectura del archivo se complete. Dentro de esta función, se obtiene la URL de datos de la imagen cargada (event.target.result) y se asigna como origen (src) de la imagen de vista previa (identificada como 'preview-image'). En resumen, este código permite mostrar una vista previa de la imagen seleccionada antes de que se cargue.
+
+```js
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+      <script>
+          Dropzone.options.myDropzone = {
+              //Como se llamara al campo el resquest
+              paramName: 'imagen',
+              maxFilesize: 2, <!-- Tamaño máximo del archivo en megabytes -->
+              acceptedFiles: '.jpg, .jpeg, .png', <!-- Tipos de archivo aceptados -->
+              dictDefaultMessage: 'Arrastra los archivos aquí para subirlos',
+              maxFiles: 6, <!-- Límite máximo de archivos -->
+              init: function() {
+                  this.on('error', function(file, errorMessage) {
+                      // Manejar errores de carga de archivos aquí
+                  });
+              },
+          };
+      </script>
+```
+
+Este código incluye la biblioteca Dropzone, que proporciona una funcionalidad de carga de archivos con una interfaz de arrastrar y soltar. La primera línea importa el archivo JavaScript de la biblioteca desde el enlace proporcionado. Luego, dentro de la etiqueta `<script>`, se configura la opción de Dropzone para personalizar su comportamiento.
+
+En este caso, se utiliza `Dropzone.options.myDropzone` para definir las opciones de configuración para el elemento con el ID "myDropzone" (debe haber un elemento HTML con ese ID en tu página). Las opciones configuradas son las siguientes:
+
+- `paramName`: Especifica el nombre del campo utilizado en la solicitud para enviar los archivos al servidor. En este caso, se establece como "imagen".
+- `maxFilesize`: Define el tamaño máximo permitido para cada archivo en megabytes. Aquí se establece en 2 MB.
+- `acceptedFiles`: Define los tipos de archivo aceptados para la carga. En este caso, se especifican los archivos con extensiones ".jpg", ".jpeg" y ".png".
+- `dictDefaultMessage`: Establece el mensaje predeterminado que se muestra en el área de Dropzone para indicar al usuario que arrastre los archivos allí.
+- `maxFiles`: Define el número máximo de archivos permitidos para la carga. Aquí se establece en 6 archivos.
+- `init`: Define una función de inicialización que se ejecuta cuando Dropzone se inicializa. Dentro de esta función, se puede configurar el manejo de eventos y otras personalizaciones. En este caso, se define una función de manejo de errores que se ejecuta cuando ocurre un error durante la carga de archivos.
+
+En definitiva, este código configura las opciones de Dropzone para permitir la carga de archivos con determinadas restricciones y proporciona la funcionalidad de manejar errores durante la carga de archivos.
+
+### Controladores
+
+```php title='Método edit del controlador AnuncioController'
+public function edit($id)
+    {
+        $subcategorias = Subcategoria::all();
+        $categorias = Categoria::all();
+        $estados = Estado::all();
+        $provincias = Provincia::all();
+        $poblaciones = Poblacion::orderBy('nombre')->get();
+        $anuncio = Anuncio::findOrFail($id);
+        
+        //Llamada al formulario de Edición de anuncios
+        return view('anuncios.edit', compact('anuncio',
+            'categorias','estados','provincias','poblaciones'));
+    }
+```
+
+El método `edit($id)` es una función dentro del controlador. Este método se utiliza para cargar los datos necesarios y mostrar el formulario de edición de un anuncio específico.
+
+Aquí está la explicación paso a paso del método:
+
+1. Recibe el parámetro `$id`, que representa el identificador único del anuncio que se desea editar.
+
+2. Realiza consultas a la base de datos para obtener los datos necesarios para el formulario de edición. Estas consultas incluyen:
+   - `$subcategorias = Subcategoria::all();`: Obtiene todas las subcategorías existentes en la base de datos.
+   - `$categorias = Categoria::all();`: Obtiene todas las categorías existentes en la base de datos.
+   - `$estados = Estado::all();`: Obtiene todos los estados existentes en la base de datos.
+   - `$provincias = Provincia::all();`: Obtiene todas las provincias existentes en la base de datos.
+   - `$poblaciones = Poblacion::orderBy('nombre')->get();`: Obtiene todas las poblaciones existentes en la base de datos, ordenadas alfabéticamente por nombre.
+
+3. Utiliza el modelo `Anuncio` para encontrar el anuncio específico que se desea editar. Se utiliza el método `findOrFail($id)` para buscar el anuncio por su identificador único. Si el anuncio no se encuentra, se lanzará una excepción.
+
+4. Llama a la vista `anuncios.edit` y pasa las variables necesarias para el formulario de edición mediante el método `compact`. Las variables que se pasan son:
+   - `'anuncio'`: El anuncio específico que se desea editar.
+   - `'categorias'`: Todas las categorías existentes.
+   - `'estados'`: Todos los estados existentes.
+   - `'provincias'`: Todas las provincias existentes.
+   - `'poblaciones'`: Todas las poblaciones existentes.
+
+5. Finalmente, retorna la vista con los datos necesarios para mostrar el formulario de edición del anuncio.
+
+Conclusión, este método se encarga de cargar los datos necesarios y mostrar el formulario de edición de un anuncio específico, utilizando los modelos y las consultas a la base de datos correspondientes.
+
+### Método para cargar images en el servidor 
+
+Las imágenes insertadas en el control **DropZone** utilizan el siguiente método del controlador FotoController para subir las imágenes al servidor.
+
+```php title='Método store del controlador FotoController'
+public function store(Request $request)
+    {
+        // Validar la solicitud
+       $request->validate([
+            'imagen' => 'required|image|max:2048',// Reemplaza las reglas de validación según tus necesidades
+            'anuncio_id'=>'required'
+        ]);
+
+        // Obtener el archivo de imagen
+        $imagen = $request->file('imagen');
+
+        // Procesar y guardar la imagen
+        $ruta = $imagen->store('public/images'); // Guarda la imagen en una carpeta específica, ajusta la ruta según tus necesidades
+        $url = '/storage/images/' . basename($ruta);
+        // Crear una nueva instancia de Foto y guardarla en la base de datos
+        $foto = Foto::create([
+            'path' => $url,
+            'anuncio_id' => $request->anuncio_id,
+        ]);
+    }
+```
+
+El método `store(Request $request)` es una función dentro del controlador. Este método se utiliza para procesar y guardar una imagen enviada a través de una solicitud de DropZone y luego crear una nueva instancia de `Foto` en la base de datos.
+
+Aquí está la explicación paso a paso del método:
+
+1. Recibe el parámetro `$request`, que es una instancia de la clase `Request` en Laravel. Esta clase contiene la información de la solicitud HTTP realizada.
+
+2. Valida la solicitud utilizando el método `validate()` del objeto `$request`. En este caso, se están aplicando dos reglas de validación:
+   - `'imagen' => 'required|image|max:2048'`: La imagen es requerida, debe ser un archivo de imagen y su tamaño máximo es de 2048 kilobytes. Puedes ajustar las reglas de validación según tus necesidades.
+
+3. Obtén el archivo de imagen de la solicitud utilizando el método `$request->file('imagen')`. Esto obtiene el archivo cargado en el campo de formulario llamado 'imagen'.
+
+4. Procesa y guarda la imagen en una ubicación específica en el servidor. En este caso, se utiliza el método `store()` del objeto `$imagen` para guardar la imagen en la carpeta 'public/images'. Puedes ajustar la ruta según tus necesidades.
+
+5. Crea la URL de la imagen utilizando la ruta donde se guardó la imagen. Se concatena '/storage/images/' con el nombre del archivo de imagen obtenido de la ruta.
+
+6. Crea una nueva instancia del modelo `Foto` utilizando el método `create()`. Se pasan los datos necesarios para crear la instancia, que son:
+   - `'path' => $url`: La URL de la imagen que se guardó.
+   - `'anuncio_id' => $request->anuncio_id`: El identificador del anuncio asociado a la foto, obtenido de la solicitud.
+
+7. La instancia de `Foto` se guarda en la base de datos.
+
+Conclusión, este método se encarga de procesar y guardar una imagen enviada a través de una solicitud, creando una nueva instancia de `Foto` en la base de datos con la URL de la imagen y el identificador del anuncio asociado. También realiza la validación de la solicitud para asegurarse de que se cumplan ciertas reglas antes de guardar la imagen. Las fotos están relacionadas con el anuncio a través del campo `anucnio_id`.
+
+### Método para borrar imágenes
+
+```php title='Método destroy de FotoController'
+    public function destroy($id)
+    {
+        $foto = Foto::find($id); // Obtener el objeto Foto por su ID
+
+        if ($foto) {
+            //Eliminar foto dinamicamente
+            unlink(public_path($foto->path));
+            $foto->delete(); // Eliminar la foto de la base de datos        
+            // Realizar otras acciones o redirigir según tus necesidades
+            return redirect()->back();
+        }
+    }
+```
+El método `destroy` tiene la finalidad de eliminar una foto específica de la base de datos y del sistema de archivos. A continuación se explica su funcionamiento:
+
+1. Se recibe el parámetro `$id`, que corresponde al identificador único de la foto que se desea eliminar.
+
+2. Se busca la foto en la base de datos utilizando el modelo `Foto` y el método `find($id)`. Si se encuentra la foto, se procede a eliminarla.
+
+3. En primer lugar, se utiliza la función `unlink()` para eliminar físicamente el archivo de imagen asociado a la foto. Se utiliza `public_path($foto->path)` para obtener la ruta completa del archivo en el sistema de archivos.
+
+4. Luego, se llama al método `delete()` en el objeto `$foto` para eliminar la entrada de la foto de la base de datos.
+
+5. Después de eliminar la foto, se pueden realizar otras acciones o redirigir a una página específica según las necesidades del sistema. En este caso, se utiliza `redirect()->back()` para redirigir al usuario a la página anterior.
+
+El texto que has proporcionado contiene algunos errores y mejoras en la redacción. Aquí está el texto corregido y mejorado:
+
+## Borrar anuncio
+
+Esta es la operación más sencilla, ya que no requiere ningún formulario de entrada de datos. Como se puede observar en secciones anteriores, hemos añadido un botón de borrado a nuestra vista **anuncios.show**. El código asociado a este botón es el siguiente:
+
+```html
+<form action="{{ route('anuncios.delete', ['id' => $anuncio->id]) }}" method="POST" class="col-sm-2">
+    @csrf
+    @method('DELETE')
+    <!-- Botón para borrar el anuncio con confirmación -->
+    <button type="submit" onclick="return confirm('¿Estás seguro de que quieres borrar este anuncio?')" class="btn btn-danger col-sm-12 m-1">Borrar</button>
+</form>
+```
+
+Este código simplemente llama a la ruta especificada, la cual se encargará de llamar al controlador **AnuncioController** y su método **destroy**. A continuación, vamos a observar el código del controlador.
+
+```php
+public function destroy($id){
+    try {
+        // Comienza la transacción
+        DB::transaction(function () use ($id) {
+            $anuncio = Anuncio::findOrFail($id);
+            
+            // Iterar sobre todas las fotos opcionales
+            foreach ($anuncio->fotos as $foto) {
+                // Borrar la foto físicamente
+                unlink(public_path($foto->path));
+                $foto->delete();
+            }
+            
+            // Borrar la imagen principal
+            unlink(public_path($anuncio->imagen));
+            
+            $anuncio->delete();
+        });
+        
+        // Si la transacción se completa sin errores, redirecciona a la ruta deseada
+        return redirect()->route('home');
+    } catch (\Throwable $e) {
+        // Manejo de errores en caso de fallo en la transacción
+        return back()->withErrors(['error' => 'Se produjo un error al borrar el anuncio.']);
+    }
+}
+```
+
+### ¿Qué hace el código?
+
+Este código utiliza el método `destroy` del controlador. Aquí está su explicación:
+
+1. El método `destroy` recibe el parámetro `$id`, que representa el ID del anuncio que se va a eliminar.
+
+2. Se inicia una transacción utilizando el método `DB::transaction()`. Esto asegura que todas las operaciones realizadas dentro de la transacción se completen correctamente o se reviertan si ocurre algún error.
+
+3. Dentro de la transacción, se busca el anuncio correspondiente al ID proporcionado utilizando `Anuncio::findOrFail($id)`. Si el anuncio no se encuentra, se lanzará una excepción.
+
+4. A continuación, se itera sobre todas las fotos opcionales asociadas al anuncio utilizando `$anuncio->fotos`. Para cada foto, se borra físicamente el archivo utilizando `unlink(public_path($foto->path))` y luego se elimina la entrada de la foto de la base de datos mediante `$foto->delete()`.
+
+5. Después de eliminar las fotos opcionales, se borra el archivo de imagen principal del anuncio utilizando `unlink(public_path($anuncio->imagen))`.
+
+6. Finalmente, se elimina el anuncio llamando a `$anuncio->delete()`.
+
+7. Si todas las operaciones dentro de la transacción se completan correctamente, se redirecciona al usuario a la ruta especificada, en este caso
+
+, `home`.
+
+8. Si ocurre algún error durante la transacción, se captura la excepción utilizando un bloque `catch (\Throwable $e)`. En caso de error, se redirecciona al usuario de vuelta a la página anterior (utilizando `back()`) y se muestra un mensaje de error utilizando `withErrors(['error' => 'Se produjo un error al borrar el anuncio.'])`.
+
+En conclusión, este código elimina un anuncio y todas sus fotos asociadas de la base de datos y del sistema de archivos. Utiliza una transacción para garantizar la integridad de los datos y maneja posibles errores mostrando un mensaje de error en caso de que algo salga mal durante la eliminación.
+
+En este proyecto, es la primera vez que se utilizan transacciones. Si no estás familiarizado con este concepto, te remito al capítulo correspondiente **Eloquent y SQL**.
