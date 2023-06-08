@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Vistas del panel de administración
+# Vistas de administración
 
 ## Introducción
 
@@ -114,6 +114,27 @@ th scope="col" colspan="2">Acción</th>
     {{ $categorias->links('pagination::bootstrap-4') }}
 @stop
 ```
+:::info ¿Qué hace?
+Claro, aquí tienes una explicación fácil y sencilla de lo que hace la vista:
+
+- `@extends('adminlte::page')`: Esta línea indica que la vista extiende el layout proporcionado por AdminLTE, lo cual significa que heredará estilos y funcionalidades predefinidas del tema.
+
+- `@section('title', 'Categorías')`: Aquí se define el título de la página, que en este caso será "Categorías".
+
+- `@section('content_header')`: Esta sección define el contenido que se mostrará en el encabezado de la página. En este caso, se muestra el título "Lista de Categorías".
+
+- `@section('content')`: Aquí comienza la sección principal de contenido de la página. A partir de este punto, se empieza a definir el contenido que se mostrará en el cuerpo de la página.
+
+- `@if (session('success'))`: En esta línea se comprueba si hay un mensaje de éxito almacenado en la sesión. Si existe, se muestra un cuadro de alerta con el mensaje.
+
+- Luego se crea una tarjeta (`<div class="card">`) que contiene una tabla con las categorías. En esta tabla se muestra información como el id, nombre, descripción e imagen de cada categoría.
+
+- Dentro de la iteración `@foreach ($categorias as $categoria)` se muestran los datos de cada categoría en filas de la tabla. También se incluyen botones de edición y eliminación para cada categoría.
+
+- Al final de la vista, se muestra la paginación utilizando el componente de paginación de Bootstrap 4 (`{{ $categorias->links('pagination::bootstrap-4') }}`).
+
+En resumen, esta vista muestra una lista de categorías con la posibilidad de agregar, editar y eliminar categorías. Utiliza el diseño y los estilos proporcionados por AdminLTE para lograr una apariencia agradable y coherente.
+:::
 
 Si después de implementar el código y especificar la ruta desea probar la vista, sustituya las rutas especificadas por el símbolo "#" para evitar errores. Una vez probado, le recomendamos volver a las rutas originales.
 
