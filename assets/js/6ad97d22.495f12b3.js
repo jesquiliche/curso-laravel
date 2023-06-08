@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkeloquent=self.webpackChunkeloquent||[]).push([[321],{3802:l=>{l.exports=JSON.parse('{"label":"hola","permalink":"/curso-laravel/blog/tags/hola","allTagsPath":"/curso-laravel/blog/tags","count":1}')}}]);
