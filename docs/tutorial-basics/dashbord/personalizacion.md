@@ -60,7 +60,7 @@ En esta sección explicaremos cómo personalizar el logotipo en la plantilla Adm
 
 - `'logo' => '<b>Anuncios</b>'`: Aquí establecemos que el texto del logotipo será "Anuncios", y lo mostraremos en negrita para que resalte.
 
-- `'logo_img' => '/images/logo2.png'`: Aquí especificamos la ruta de la imagen que queremos usar como logotipo. Supongamos que la imagen se encuentra en la carpeta "images" del proyecto y se llama "logo2.png".
+- `'logo_img' => '/images/logo.jpeg'`: Aquí especificamos la ruta de la imagen que queremos usar como logotipo. En nuestro caso la imagen se encuentra en la carpeta "images" del proyecto y se llama "logo.jpeg".
 
 - `'logo_img_class' => 'brand-image img-circle elevation-3'`: Aquí le añadimos algunas clases de estilo a la imagen del logotipo, como "brand-image", "img-circle" y "elevation-3". Estas clases sirven para darle un aspecto visual específico al logotipo.
 
@@ -100,10 +100,10 @@ En esta sección estamos configurando el menú de usuario en la plantilla AdminL
 Estas configuraciones te permiten personalizar cómo se mostrará el menú de usuario en la plantilla AdminLTE. Puedes habilitar o deshabilitar diferentes elementos, como el encabezado, la imagen de usuario, la descripción y el enlace al perfil, según tus necesidades y preferencias de diseño.
 
 Para más detalles consulte la documentación oficial.
+[https://adminlte.io/docs/3.0/](https://adminlte.io/docs/3.0/)
+
 
 ### Configuración menú de la navegación
-
-¡Claro! Permíteme comentar cada sección de manera simple y amena:
 
 ```php
 'menu' => [

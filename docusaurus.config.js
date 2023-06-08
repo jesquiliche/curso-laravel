@@ -21,7 +21,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'jesquiliche', // Usually your GitHub org/user name.
-  projectName: 'laravel-curso', // Usually your repo name.
+  projectName: 'curso-laravel', // Usually your repo name.
   deploymentBranch:'gh-pages',
   trailingSlash:false,
 
