@@ -663,3 +663,359 @@ El código proporcionado muestra un botón de borrado dentro de una celda de una
 - Si el usuario confirma la acción, el formulario se envía y se realiza la solicitud de eliminación.
 
 En resumen, este código muestra un botón de eliminación en forma de formulario dentro de una celda de una tabla. Al hacer clic en el botón y confirmar la acción, se envía una solicitud de eliminación de la categoría correspondiente a través de una solicitud HTTP DELETE a la ruta especificada.
+
+## Subcategorías
+
+En esta sección estudiaremos como crear la vista, el controlador para el mantenimiento de **subcategorías**.
+
+### Creación del controlador
+
+Teclee desde la terminal dentro de la carpeta del proyecto:
+
+```bash
+artisan make:controller Admin\SubCategoriaController
+```
+Una vez creado diríjase al fichero **app\Http\Controllers\Admin\SubCategoriaController.php**. Edite el contenido del fichero he introduzca el siguiente código:
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\SubCategoria;
+use App\Models\Categoria;
+use Illuminate\Http\Request;
+
+class SubCategoriaController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $categorias = Categoria::all();
+
+        $subcategorias = SubCategoria::query();
+
+        // Filtrar subcategorías por categoría si se proporciona el parámetro 'categoria_id'
+        if ($request->has('categoria_id')) {
+            $subcategorias->where('categoria_id', (int)$request->categoria_id);
+        }
+
+        $subcategorias = $subcategorias->get();
+
+        return view('admin.subcategorias.index', compact('subcategorias', 'categorias'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $rules = [
+            'nombre' => 'required|unique:subcategorias|string|max:150',
+            'descripcion' => 'required|string',
+            'categoria_id' => 'required|exists:categorias,id'
+        ];
+
+        $request->validate($rules);
+
+        $data = $request->only([
+            'nombre',
+            'descripcion',
+            'categoria_id'
+        ]);
+
+        Subcategoria::create($data);
+
+        return redirect()->route('admin.subcategorias.index')->with('success', 'Subcategoría agregada correctamente');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $subcategoria = SubCategoria::find($id);
+
+        return view('admin.subcategorias.edit', compact('subcategoria'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nombre' => 'required',
+            'descripcion' => 'required'
+        ]);
+
+        $subcategoria = Subcategoria::find($id);
+        $subcategoria->nombre = $request->nombre;
+        $subcategoria->descripcion = $request->descripcion;
+
+        $subcategoria->save();
+
+        return redirect()->route('admin.subcategorias.index')->with('success', 'Subcategoría actualizada correctamente');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $categorias = Categoria::all();
+
+        return view('admin.subcategorias.create', compact('categorias'));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $subcategoria = SubCategoria::find($id);
+
+        $subcategoria->delete();
+
+        return redirect()->route('admin.subcategorias.index')->with('success', 'Subcategoría eliminada correctamente');
+    }
+}
+```
+
+#### ¿Qué hace?
+
+Descripción de los métodos:
+
+1. **index(Request $request):** Este método muestra una lista de subcategorías. Recibe un objeto de la clase `Request` que puede contener el parámetro `categoria_id` para filtrar las subcategorías por categoría. Primero obtiene todas las categorías y luego realiza una consulta en la tabla de subcategorías. Si se proporciona el parámetro `categoria_id`, se agrega una cláusula WHERE a la consulta para filtrar las subcategorías por esa categoría. Finalmente, retorna la vista 'admin.subcategorias.index' pasando las subcategorías y categorías como datos.
+
+2. **store(Request $request):** Este método almacena una nueva subcategoría en la base de datos. Recibe un objeto de la clase `Request` que contiene los datos enviados por el formulario. Primero, define reglas de validación para los campos de nombre, descripción y categoria_id. Luego, valida los datos del formulario utilizando las reglas establecidas. Si la validación es exitosa, crea un array con los campos requeridos y llama al método `create` del modelo `Subcategoria` para crear una nueva subcategoría en la base de datos. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+
+3. **edit($id):** Este método muestra el formulario de edición de una subcategoría específica. Recibe un parámetro `$id` que representa el identificador de la subcategoría que se va a editar. Utiliza este identificador para buscar la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria`. Luego, retorna la vista 'admin.subcategorias.edit' pasando la subcategoría encontrada como dato.
+
+4. **update(Request $request, $id):** Este método actualiza una subcategoría existente en la base de datos. Recibe un objeto de la clase `Request` que contiene los datos enviados por el formulario y el parámetro `$id` que representa el identificador de la subcategoría que se va a actualizar. Primero, define reglas de validación para los campos de nombre y descripción. Luego, valida los datos del formulario utilizando las reglas establecidas. Si la validación es exitosa, busca la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria` y actualiza sus campos con los valores proporcionados en el formulario. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+
+5. **create():** Este método muestra el formulario de creación de una nueva subcategoría. Obtiene todas las categorías de la base de datos utilizando el modelo `Categoria` y luego retorna la vista 'admin.subcategorias.create' pasando las categorías como dato.
+
+6. **destroy($id):** Este método elimina una subcategoría de la base de datos. Recibe el parámetro `$id` que representa el identificador de la subcategoría que se va a eliminar. Utiliza este identificador para buscar la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria`. Luego, llama al método `delete` en la instancia de la subcategoría para eliminarla de la base de datos. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+
+Estas son las acciones principales que realiza cada método.
+
+### Creación de la vista index
+
+Para la creación de nuestras vistas **resources\views\admin\subcategorias** y
+una vez creada la carpeta dentro de esta cree el fichero **index.blade.php** e introduzca el siguiente código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Lista de subcategorías')
+
+@section('content_header')
+    <h1>Lista de subcategorias</h1>
+@stop
+
+@section('content')
+    <!-- Mensaje de éxito si existe -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    <div class="card">
+        <div class="card-header">
+            <!-- Formulario de filtrado -->
+            {!! Form::open(['route' => 'admin.subcategorias.index', 'method' => 'GET']) !!}
+            {!! Form::select('categoria_id', $categorias->pluck('nombre', 'id'), request('categoria_id'), [
+                'class' => 'form-control col-md-4',
+                'placeholder' => 'Escoge categoría',
+            ]) !!}
+            <br />
+            <table>
+                <tr>
+                    <td>
+                        {!! Form::submit('Filtrar', ['class' => 'btn btn-primary']) !!}
+                        {!! Form::close() !!}
+                    </td>
+                    <td>
+                        <!-- Enlace para agregar una nueva subcategoría -->
+                        <a href="{{ route('admin.subcategorias.create') }}" class="btn btn-primary ml-2">Agregar</a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+
+        <div class="card-body">
+            <table id="categorias-table" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th colspan="2">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Iteración sobre las subcategorías -->
+                    @foreach ($subcategorias as $subcategoria)
+                        <tr>
+                            <td>{{ $subcategoria->id }}</td>
+                            <td>{{ $subcategoria->nombre }}</td>
+                            <td>{{ $subcategoria->descripcion }}</td>
+                            
+                            <td widt="10px">
+                                <!-- Enlace para editar la subcategoría -->
+                                <a href="{{ route('admin.subcategorias.edit', ['id' => $subcategoria->id]) }}" class="btn btn-primary btn-sm">Editar</a>
+                            </td>
+                            <td widt="10px">
+                                <!-- Formulario para eliminar la subcategoría -->
+                                <form action="{{ route('admin.subcategorias.delete', ['id' => $subcategoria->id]) }}"" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <!-- Botón de eliminación con confirmación -->
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Si borrar esta subcategoria borra todas las subcegorias y anuncios asociados,\n¿Estás seguro de que deseas eliminar esta categoría?')">
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </td>
+                            
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+@endsection
+
+@section('css')
+    <!-- Estilos de DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+@stop
+
+@section('js')
+    <!-- Scripts de DataTables -->
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#categorias-table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    // Configuración de los mensajes de DataTables
+                }
+            });
+        });
+    </script>
+@stop
+```
+En esta vista vamos a utilizar los **datatables de bootstrap**.
+
+#### ¿Qué son los datatables?
+DataTables es una biblioteca JavaScript que permite agregar funcionalidad avanzada a las tablas HTML, como búsqueda, filtrado, ordenamiento y paginación, de manera fácil y rápida.
+
+Los DataTables de Bootstrap son una extensión de la biblioteca DataTables que utiliza los estilos y componentes de Bootstrap para darle a las tablas un aspecto y una interacción mejorada.
+
+Al utilizar los DataTables de Bootstrap, obtienes las siguientes ventajas:
+
+1. **Funcionalidad avanzada**: Puedes habilitar la búsqueda en tiempo real, el filtrado por columnas, el ordenamiento ascendente o descendente, la paginación y otras funcionalidades en tus tablas HTML con solo unos pocos pasos.
+
+2. **Interfaz de usuario mejorada**: Los DataTables de Bootstrap aplican los estilos y componentes de Bootstrap a las tablas, lo que las hace más atractivas y fáciles de leer. También proporcionan elementos interactivos, como botones de ordenamiento y búsqueda, que mejoran la experiencia del usuario.
+
+3. **Responsividad**: Los DataTables de Bootstrap son responsivos por defecto, lo que significa que se adaptan automáticamente a diferentes tamaños de pantalla y dispositivos, como dispositivos móviles y tabletas.
+
+4. **Personalización**: Puedes personalizar la apariencia y el comportamiento de los DataTables de Bootstrap según tus necesidades. Puedes cambiar los estilos de la tabla, agregar o quitar columnas, definir comportamientos específicos, y mucho más.
+
+En definitiva, los DataTables de Bootstrap son una combinación de las funcionalidades de DataTables y los estilos de Bootstrap, lo que te permite mejorar la interacción y apariencia de tus tablas HTML de manera fácil y rápida.
+
+#### ¿Qué hace el javascript?
+
+```js
+@section('js')
+    <!-- Scripts de DataTables -->
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#categorias-table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    // Configuración de los mensajes de DataTables
+                }
+            });
+        });
+    </script>
+@stop
+```
+
+Este script proporciona la funcionalidad de DataTables a la tabla con el id "categorias-table" en la página. A continuación, se explica qué hace cada parte del script:
+
+1. **$(document).ready(function() {...});:** Esta línea asegura que el código se ejecute una vez que el documento HTML haya sido completamente cargado.
+
+2. **$('#preguntas-table').DataTable({...});:** Aquí se inicializa el DataTable en la tabla con el id "categorias-table". Esto activa todas las funcionalidades de DataTables en esa tabla específica.
+
+3. **"paging": true:** Habilita la paginación, lo que significa que los resultados se dividirán en páginas y se mostrarán en diferentes "páginas".
+
+4. **"lengthChange": false:** Deshabilita la opción de cambiar la cantidad de registros mostrados por página.
+
+5. **"searching": true:** Habilita la función de búsqueda, que permite al usuario buscar registros específicos en la tabla.
+
+6. **"ordering": true:** Habilita la función de ordenamiento, lo que permite al usuario ordenar los registros en función de las columnas.
+
+7. **"info": true:** Muestra información sobre el número total de registros y el rango de registros mostrados en la tabla.
+
+8. **"autoWidth": false:** Desactiva el ajuste automático del ancho de las columnas de la tabla.
+
+9. **"responsive": true:** Hace que la tabla sea responsive, lo que significa que se adaptará y se verá correctamente en diferentes tamaños de pantalla y dispositivos.
+
+10. **"language": {...}:** Aquí se pueden personalizar los mensajes y textos utilizados por DataTables, como los mensajes de información, búsqueda, paginación, etc.
+
+En resumen, este script configura y activa DataTables en la tabla con el id "categoriass-table", proporcionando funcionalidades como paginación, búsqueda, ordenamiento y otros, y personalizando algunos aspectos del comportamiento y la apariencia de la tabla.
+
+### Creación de la ruta
+
+Dentro de la ruta del fichero **routes\admin.php** cree la siguiente ruta.
+
+```php
+Route::get("/subcategorias",[SubCategoriaController::class,'index'])->name('admin.subcategorias.index');
+```
+
+Recuerde que la vista todavía no es totalmente operativa pues nos quedan vistas por implementar.
