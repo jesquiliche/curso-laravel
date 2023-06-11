@@ -706,7 +706,7 @@ class SubCategoriaController extends Controller
             $subcategorias->where('categoria_id', (int)$request->categoria_id);
         }
 
-        $subcategorias = $subcategorias->get();
+        $subcategorias = $subcategorias->paginate(4);
 
         return view('admin.subcategorias.index', compact('subcategorias', 'categorias'));
     }
@@ -805,21 +805,21 @@ class SubCategoriaController extends Controller
 
 #### ¿Qué hace?
 
-Descripción de los métodos:
+El controlador `SubCategoriaController` es responsable de manejar las acciones relacionadas con las subcategorías en la parte administrativa de la aplicación. Aquí hay una descripción de cada método en el controlador:
 
-1. **index(Request $request):** Este método muestra una lista de subcategorías. Recibe un objeto de la clase `Request` que puede contener el parámetro `categoria_id` para filtrar las subcategorías por categoría. Primero obtiene todas las categorías y luego realiza una consulta en la tabla de subcategorías. Si se proporciona el parámetro `categoria_id`, se agrega una cláusula WHERE a la consulta para filtrar las subcategorías por esa categoría. Finalmente, retorna la vista 'admin.subcategorias.index' pasando las subcategorías y categorías como datos.
+- `index`: Este método muestra la lista de subcategorías. Obtiene todas las categorías y subcategorías disponibles y las pasa a la vista 'admin.subcategorias.index'. También permite filtrar las subcategorías por categoría si se proporciona el parámetro 'categoria_id'.
 
-2. **store(Request $request):** Este método almacena una nueva subcategoría en la base de datos. Recibe un objeto de la clase `Request` que contiene los datos enviados por el formulario. Primero, define reglas de validación para los campos de nombre, descripción y categoria_id. Luego, valida los datos del formulario utilizando las reglas establecidas. Si la validación es exitosa, crea un array con los campos requeridos y llama al método `create` del modelo `Subcategoria` para crear una nueva subcategoría en la base de datos. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+- `store`: Este método almacena una nueva subcategoría en la base de datos. Primero, valida los datos proporcionados por el formulario utilizando reglas de validación. Luego, crea un nuevo objeto `SubCategoria` con los datos validados y lo guarda en la base de datos. Finalmente, redirige a la lista de subcategorías con un mensaje de éxito.
 
-3. **edit($id):** Este método muestra el formulario de edición de una subcategoría específica. Recibe un parámetro `$id` que representa el identificador de la subcategoría que se va a editar. Utiliza este identificador para buscar la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria`. Luego, retorna la vista 'admin.subcategorias.edit' pasando la subcategoría encontrada como dato.
+- `edit`: Este método muestra el formulario de edición para una subcategoría específica. Recibe el ID de la subcategoría como parámetro y busca el objeto `SubCategoria` correspondiente. Luego, pasa el objeto `SubCategoria` a la vista 'admin.subcategorias.edit' para que pueda ser editado.
 
-4. **update(Request $request, $id):** Este método actualiza una subcategoría existente en la base de datos. Recibe un objeto de la clase `Request` que contiene los datos enviados por el formulario y el parámetro `$id` que representa el identificador de la subcategoría que se va a actualizar. Primero, define reglas de validación para los campos de nombre y descripción. Luego, valida los datos del formulario utilizando las reglas establecidas. Si la validación es exitosa, busca la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria` y actualiza sus campos con los valores proporcionados en el formulario. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+- `update`: Este método actualiza una subcategoría existente en la base de datos. Valida los datos proporcionados por el formulario y busca el objeto `SubCategoria` correspondiente según el ID proporcionado. Luego, actualiza los campos `nombre` y `descripcion` con los datos proporcionados y guarda los cambios en la base de datos. Finalmente, redirige a la lista de subcategorías con un mensaje de éxito.
 
-5. **create():** Este método muestra el formulario de creación de una nueva subcategoría. Obtiene todas las categorías de la base de datos utilizando el modelo `Categoria` y luego retorna la vista 'admin.subcategorias.create' pasando las categorías como dato.
+- `create`: Este método muestra el formulario para crear una nueva subcategoría. Obtiene todas las categorías disponibles y las pasa a la vista 'admin.subcategorias.create' para su selección en el formulario de creación.
 
-6. **destroy($id):** Este método elimina una subcategoría de la base de datos. Recibe el parámetro `$id` que representa el identificador de la subcategoría que se va a eliminar. Utiliza este identificador para buscar la subcategoría correspondiente en la base de datos utilizando el modelo `SubCategoria`. Luego, llama al método `delete` en la instancia de la subcategoría para eliminarla de la base de datos. Por último, redirige al índice de subcategorías y muestra un mensaje de éxito.
+- `destroy`: Este método elimina una subcategoría de la base de datos. Busca el objeto `SubCategoria` según el ID proporcionado y lo elimina de la base de datos. Luego, redirige a la lista de subcategorías con un mensaje de éxito.
 
-Estas son las acciones principales que realiza cada método.
+Cada método realiza acciones específicas relacionadas con la manipulación de subcategorías, como mostrar, crear, editar y eliminar. Estas acciones se corresponden con las operaciones básicas de CRUD (Crear, Leer, Actualizar, Eliminar) para las subcategorías en la aplicación administrativa.
 
 ### Creación de la vista index
 
@@ -870,7 +870,7 @@ una vez creada la carpeta dentro de esta cree el fichero **index.blade.php** e i
         </div>
 
         <div class="card-body">
-            <table id="categorias-table" class="table table-bordered table-hover">
+            <table id="subcategorias-table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -893,7 +893,7 @@ una vez creada la carpeta dentro de esta cree el fichero **index.blade.php** e i
                             </td>
                             <td widt="10px">
                                 <!-- Formulario para eliminar la subcategoría -->
-                                <form action="{{ route('admin.subcategorias.delete', ['id' => $subcategoria->id]) }}"" method="POST">
+                                <form action="{{ route('admin.subcategorias.delete', ['id' => $subcategoria->id]) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <!-- Botón de eliminación con confirmación -->
@@ -910,107 +910,39 @@ una vez creada la carpeta dentro de esta cree el fichero **index.blade.php** e i
                 </tbody>
             </table>
         </div>
-        
+        {{ $subcategorias->links('pagination::bootstrap-4') }}
     </div>
 @endsection
-
-@section('css')
-    <!-- Estilos de DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
-@stop
-
-@section('js')
-    <!-- Scripts de DataTables -->
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#categorias-table').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
-                "language": {
-                    // Configuración de los mensajes de DataTables
-                }
-            });
-        });
-    </script>
-@stop
 ```
-En esta vista vamos a utilizar los **datatables de bootstrap**.
+¿Qué hace?
 
-#### ¿Qué son los datatables?
-DataTables es una biblioteca JavaScript que permite agregar funcionalidad avanzada a las tablas HTML, como búsqueda, filtrado, ordenamiento y paginación, de manera fácil y rápida.
+Esta vista es la plantilla que se utiliza para mostrar la lista de subcategorías en la interfaz de administración. Aquí hay una descripción de lo que hace cada sección de la vista:
 
-Los DataTables de Bootstrap son una extensión de la biblioteca DataTables que utiliza los estilos y componentes de Bootstrap para darle a las tablas un aspecto y una interacción mejorada.
+- `@extends('adminlte::page')`: Esta línea indica que la vista extiende la plantilla proporcionada por el paquete AdminLTE. Proporciona una estructura básica para la página.
 
-Al utilizar los DataTables de Bootstrap, obtienes las siguientes ventajas:
+- `@section('title', 'Lista de subcategorías')`: En esta sección se establece el título de la página como "Lista de subcategorías". Esto se mostrará en la pestaña del navegador.
 
-1. **Funcionalidad avanzada**: Puedes habilitar la búsqueda en tiempo real, el filtrado por columnas, el ordenamiento ascendente o descendente, la paginación y otras funcionalidades en tus tablas HTML con solo unos pocos pasos.
+- `@section('content_header')`: Aquí se define el encabezado de contenido de la página. Muestra el título "Lista de subcategorías" como encabezado principal de la página.
 
-2. **Interfaz de usuario mejorada**: Los DataTables de Bootstrap aplican los estilos y componentes de Bootstrap a las tablas, lo que las hace más atractivas y fáciles de leer. También proporcionan elementos interactivos, como botones de ordenamiento y búsqueda, que mejoran la experiencia del usuario.
+- `@section('content')`: Esta sección contiene el contenido principal de la página.
 
-3. **Responsividad**: Los DataTables de Bootstrap son responsivos por defecto, lo que significa que se adaptan automáticamente a diferentes tamaños de pantalla y dispositivos, como dispositivos móviles y tabletas.
+- `@if(session('success'))`: Este bloque de código verifica si existe una sesión flash llamada 'success'. Si existe, muestra un mensaje de éxito en forma de una alerta verde. El contenido del mensaje se obtiene de la sesión flash.
 
-4. **Personalización**: Puedes personalizar la apariencia y el comportamiento de los DataTables de Bootstrap según tus necesidades. Puedes cambiar los estilos de la tabla, agregar o quitar columnas, definir comportamientos específicos, y mucho más.
+- `<div class="card">`: Este div envuelve el contenido de la tarjeta que contiene el formulario de filtrado y la tabla de subcategorías.
 
-En definitiva, los DataTables de Bootstrap son una combinación de las funcionalidades de DataTables y los estilos de Bootstrap, lo que te permite mejorar la interacción y apariencia de tus tablas HTML de manera fácil y rápida.
+- `<div class="card-header">`: Esta sección contiene el encabezado de la tarjeta. Aquí se encuentra el formulario de filtrado de subcategorías, que permite filtrar las subcategorías por categoría. El formulario utiliza el método GET y se envía a la ruta 'admin.subcategorias.index'. También muestra un botón para agregar una nueva subcategoría que enlaza a la ruta 'admin.subcategorias.create'.
 
-#### ¿Qué hace el javascript?
+- `<table id="subcategorias-table" class="table table-bordered table-hover">`: Esta tabla muestra la lista de subcategorías. Utiliza la clase de estilo de Bootstrap 'table' para dar formato a la tabla. Cada fila muestra información de una subcategoría, incluyendo su ID, nombre, descripción y acciones disponibles como editar y eliminar.
 
-```js
-@section('js')
-    <!-- Scripts de DataTables -->
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#categorias-table').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
-                "language": {
-                    // Configuración de los mensajes de DataTables
-                }
-            });
-        });
-    </script>
-@stop
-```
+- `@foreach ($subcategorias as $subcategoria)`: Este bucle itera sobre cada subcategoría en la variable $subcategorias y muestra la información correspondiente en cada fila de la tabla.
 
-Este script proporciona la funcionalidad de DataTables a la tabla con el id "categorias-table" en la página. A continuación, se explica qué hace cada parte del script:
+- `<td widt="10px">`: Estas celdas de la tabla contienen los botones de "Editar" y "Eliminar" para cada subcategoría. El botón de "Editar" enlaza a la ruta 'admin.subcategorias.edit' con el ID de la subcategoría correspondiente. El botón de "Eliminar" muestra un formulario de eliminación que se envía a la ruta 'admin.subcategorias.delete' con el ID de la subcategoría correspondiente. Antes de eliminar, muestra una confirmación utilizando el método JavaScript confirm().
 
-1. **$(document).ready(function() {...});:** Esta línea asegura que el código se ejecute una vez que el documento HTML haya sido completamente cargado.
+- `{{ $subcategorias->links('pagination::bootstrap-4') }}`: Esta línea muestra la paginación de la lista de subcategorías utilizando el método `links()` del objeto `$subcategorias`. Utiliza la plantilla de paginación proporcionada por Bootstrap 4.
 
-2. **$('#preguntas-table').DataTable({...});:** Aquí se inicializa el DataTable en la tabla con el id "categorias-table". Esto activa todas las funcionalidades de DataTables en esa tabla específica.
+En resumen, esta vista muestra una lista paginada de subcategorías en una tabla, permite filtrar las subcategorías por categoría, proporciona botones para editar y eliminar cada subcategoría, y muestra un mensaje de éxito si existe.
 
-3. **"paging": true:** Habilita la paginación, lo que significa que los resultados se dividirán en páginas y se mostrarán en diferentes "páginas".
-
-4. **"lengthChange": false:** Deshabilita la opción de cambiar la cantidad de registros mostrados por página.
-
-5. **"searching": true:** Habilita la función de búsqueda, que permite al usuario buscar registros específicos en la tabla.
-
-6. **"ordering": true:** Habilita la función de ordenamiento, lo que permite al usuario ordenar los registros en función de las columnas.
-
-7. **"info": true:** Muestra información sobre el número total de registros y el rango de registros mostrados en la tabla.
-
-8. **"autoWidth": false:** Desactiva el ajuste automático del ancho de las columnas de la tabla.
-
-9. **"responsive": true:** Hace que la tabla sea responsive, lo que significa que se adaptará y se verá correctamente en diferentes tamaños de pantalla y dispositivos.
-
-10. **"language": {...}:** Aquí se pueden personalizar los mensajes y textos utilizados por DataTables, como los mensajes de información, búsqueda, paginación, etc.
-
-En resumen, este script configura y activa DataTables en la tabla con el id "categoriass-table", proporcionando funcionalidades como paginación, búsqueda, ordenamiento y otros, y personalizando algunos aspectos del comportamiento y la apariencia de la tabla.
-
-### Creación de la ruta
+### Listado de subcategorias
 
 Dentro de la ruta del fichero **routes\admin.php** cree la siguiente ruta.
 
@@ -1019,3 +951,328 @@ Route::get("/subcategorias",[SubCategoriaController::class,'index'])->name('admi
 ```
 
 Recuerde que la vista todavía no es totalmente operativa pues nos quedan vistas por implementar.
+
+
+### Agregar categoría
+
+A continuación cree el siguiente fichero **resources\views\admin\subcategorias\create.blade.php** edite el fichero y copie y pegue el siguiente código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Tablero')
+
+@section('content_header')
+    <h1>Agregar categoria</h1>
+@stop
+
+@section('content')
+<div class="card">
+	<div class="card-body">
+		{!! Form::open(['route' => 'admin.subcategorias.store']) !!}
+		
+            <div class="form-gropup">
+                {!! Form::label('categoria', 'Categoría') !!}
+                {!! Form::select('categoria_id', $categorias->pluck('nombre', 'id'), null, ['class' => 'form-control']) !!}
+            </div>
+			<div class="form-group">
+				{!! Form::label('nombre', 'Nombre') !!}
+				{!! Form::text('nombre', null, [
+					'class' => 'form-control',
+					'placeholder' => 'Ingrese el nombre de la categoria'
+				]) !!}
+				
+				@error('nombre')
+					<span class="text-danger">{{ $message }}</span>
+				@enderror
+				
+			</div>
+			
+			<div class="form-group">
+				{!! Form::label('descripcion', 'Descripcion') !!}
+				{!! Form::textarea('descripcion', null, [
+					'class' => 'form-control',
+					'placeholder' => 'Ingrese la descripción de la categoria'
+				]) !!}
+				
+				@error('descripcion')
+					<span class="text-danger">{{ $message }}</span>
+				@enderror
+				
+			</div>
+			
+			{!! Form::submit('Crear categoria', [
+				'class'=>'btn btn-primary'
+			]) !!}
+			
+		{!! Form::close() !!}
+	</div>
+</div>
+@stop
+ 
+
+@section('css')
+    <link rel="stylesheet" href="/js/ckeditor/ckeditor.css">
+@stop
+
+@section('js')
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#descripcion'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        $(document).ready(function() {
+            CKEDITOR.replace('descripcion');
+        });
+    </script>
+@stop
+```
+### ¿Qué hace?
+
+A continuación, se comentan las secciones principales del código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Tablero')
+```
+
+Esta línea establece que la vista extiende la plantilla "adminlte::page" y establece el título de la página como "Tablero".
+
+```php
+@section('content_header')
+    <h1>Agregar categoria</h1>
+@stop
+```
+
+Esta sección define el encabezado del contenido de la página, que muestra el título "Agregar categoría".
+
+```php
+@section('content')
+<div class="card">
+	<div class="card-body">
+		{!! Form::open(['route' => 'admin.subcategorias.store']) !!}
+		<!-- Contenido del formulario -->
+		{!! Form::close() !!}
+	</div>
+</div>
+@stop
+```
+
+Esta sección define el contenido principal de la página, que incluye un formulario para agregar una categoría. El formulario utiliza la función `Form::open()` para abrir el formulario y especifica la ruta `admin.subcategorias.store` como destino para enviar los datos del formulario. El contenido específico del formulario se encuentra dentro de las etiquetas `{!! Form::open() !!}` y `{!! Form::close() !!}`.
+
+```php
+@section('css')
+    <link rel="stylesheet" href="/js/ckeditor/ckeditor.css">
+@stop
+```
+
+Esta sección define el CSS adicional que se debe cargar en la página. En este caso, se carga un archivo CSS de CKEditor para estilos específicos.
+
+```php
+@section('js')
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#descripcion'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        $(document).ready(function() {
+            CKEDITOR.replace('descripcion');
+        });
+    </script>
+@stop
+```
+
+Esta sección define el JavaScript adicional que se debe cargar en la página. Primero, se carga el script de CKEditor desde un CDN. Luego, se inicializa un editor CKEditor en el campo de texto con el ID "descripcion" utilizando la función `ClassicEditor.create()`. También se utiliza jQuery para reemplazar el campo de texto con el ID "descripcion" con un editor CKEditor adicional.
+
+En general, este código define una vista de Blade que muestra un formulario para agregar una categoría y utiliza CKEditor para mejorar la experiencia de edición del campo de descripción.
+
+### Editar subcategoría
+
+A continuación vamos a explicar como editar subcategorías. Cree el siguiente
+fichero **resources\views\admin\subcategorias\edit.blade.php**.
+Edite y copie el siguiente código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Tablero')
+
+@section('content_header')
+    <h1>Editar Subcategoria</h1>
+@stop
+
+@section('content')
+<div class="card">
+    <div class="card-body">
+        {{-- Genera un formulario de actualización de bloque utilizando el modelo $subcategoria --}}
+        {!! Form::model($subcategoria,
+            ['route' => ['admin.subcategorias.update',$subcategoria->id],
+            'method'=>'PUT']) !!}
+            {{-- Define un campo de texto para el nombre de la subcategoría --}}
+            <div class="form-group">
+                {!! Form::label('nombre', 'Nombre') !!}
+                {!! Form::text('nombre', null, [
+                    'class' => 'form-control',
+                    'placeholder' => 'Ingrese el nombre de la Subcategoría'
+                ]) !!}
+                
+                {{-- Muestra un mensaje de error si hay un error de validación para el campo nombre --}}
+                @error('nombre')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
+                
+            </div>
+            
+            {{-- Define un campo de texto para la descripción del bloque --}}
+            <div class="form-group">
+                {!! Form::label('descripcion', 'Descripcion') !!}
+                {!! Form::textarea('descripcion', null, [
+                    'class' => 'form-control',
+                    'placeholder' => 'Ingrese la descripción de la Subcategoría'
+                ]) !!}
+                
+                {{-- Muestra un mensaje de error si hay un error de validación para el campo descripcion --}}
+                @error('descripcion')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
+                
+            </div>
+            
+            {{-- Define el botón de envío del formulario --}}
+            {!! Form::submit('Actualizar categoria', [
+                'class'=>'btn btn-primary'
+            ]) !!}
+            
+        {!! Form::close() !!} {{-- Cierra el formulario --}}
+    </div>
+</div>
+@stop
+
+@section('css')
+    <link rel="stylesheet" href="/js/ckeditor/ckeditor.css">
+@stop
+
+@section('js')
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#descripcion'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        $(document).ready(function() {
+            CKEDITOR.replace('descripcion');
+        });
+    </script>
+@stop
+```
+### ¿Qué hace?
+
+A continuación, se comentan las secciones principales del código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Tablero')
+```
+
+Esta línea establece que la vista extiende la plantilla "adminlte::page" y establece el título de la página como "Tablero".
+
+```php
+@section('content_header')
+    <h1>Editar Subcategoría</h1>
+@stop
+```
+
+Esta sección define el encabezado del contenido de la página, que muestra el título "Editar Subcategoría".
+
+```php
+@section('content')
+<div class="card">
+    <div class="card-body">
+        {{-- Genera un formulario de actualización de subcategoría utilizando el modelo $subcategoria --}}
+        {!! Form::model($subcategoria,
+            ['route' => ['admin.subcategorias.update',$subcategoria->id],
+            'method'=>'PUT']) !!}
+        <!-- Contenido del formulario -->
+        {!! Form::close() !!} {{-- Cierra el formulario --}}
+    </div>
+</div>
+@stop
+```
+
+Esta sección define el contenido principal de la página, que incluye un formulario para editar una subcategoría existente. El formulario utiliza la función `Form::model()` para vincular el modelo `$subcategoria` al formulario y especifica la ruta `admin.subcategorias.update` con el ID de la subcategoría como destino para enviar los datos del formulario. El contenido específico del formulario se encuentra dentro de las etiquetas `{!! Form::model() !!}` y `{!! Form::close() !!}`.
+
+Dentro del formulario, se definen los campos de texto para editar el nombre y la descripción de la subcategoría. Estos campos utilizan las funciones `Form::label()`, `Form::text()` y `Form::textarea()` para generar los campos y tienen valores predeterminados establecidos mediante el uso del modelo `$subcategoria`. Además, se muestra un mensaje de error si hay algún error de validación para los campos `nombre` y `descripcion` mediante el uso de la directiva `@error`.
+
+```php
+@section('css')
+    <link rel="stylesheet" href="/js/ckeditor/ckeditor.css">
+@stop
+```
+
+Esta sección define el CSS adicional que se debe cargar en la página. En este caso, se carga un archivo CSS de CKEditor para estilos específicos.
+
+```php
+@section('js')
+    <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#descripcion'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script>
+        $(document).ready(function() {
+            CKEDITOR.replace('descripcion');
+        });
+    </script>
+@stop
+```
+
+Esta sección define el JavaScript adicional que se debe cargar en la página. Primero, se carga el script de CKEditor desde un CDN. Luego, se inicializa un editor CKEditor en el campo de texto con el ID "descripcion" utilizando la función `ClassicEditor.create()`. También se utiliza jQuery para reemplazar el campo de texto con el ID "descripcion" con un editor CKEditor adicional.
+
+En resumen, este código define una vista de Blade que muestra un formulario para editar una subcategoría existente y utiliza CKEditor para mejorar la experiencia de edición del campo de descripción.
+
+### Borrado de categoría
+
+El borrado de categoría no implementa ninguna vista. El método se implementa en el controlador **SubCategoriaController**.
+
+```php
+    public function destroy($id)
+    {
+        $subcategoria = SubCategoria::find($id);
+
+        $subcategoria->delete();
+
+        return redirect()->route('admin.subcategorias.index')->with('success', 'Subcategoría eliminada correctamente');
+    }
+```
+
+### Definición de rutas
+
+Vamos a ver las rutas definidas en el el fichero **admin.php** relacionadas con **subcategorias**. Comprueba que están definidas.
+
+```php
+Route::get("/subcategorias",[SubCategoriaController::class,'index'])->name('admin.subcategorias.index');
+Route::post("/subcategorias/store",[SubCategoriaController::class,'store'])->name('admin.subcategorias.store');
+Route::get("/subcategorias/create",[SubCategoriaController::class,'create'])->name('admin.subcategorias.create');
+Route::get("/subcategorias/edit/{id}",[SubCategoriaController::class,'edit'])->name('admin.subcategorias.edit');
+Route::put("/subcategorias/update/{id}",[SubCategoriaController::class,'update'])->name('admin.subcategorias.update');
+Route::delete("/subcategorias/delete/{id}",[SubCategoriaController::class,'destroy'])->name('admin.subcategorias.delete');
+```
+
+
+
