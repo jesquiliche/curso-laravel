@@ -406,6 +406,7 @@ class DatabaseSeeder extends Seeder
 }
 ```
 
+
 Con esta modificación, al utilizar el comando `'php artisan migrate:fresh --seed'`, la base de datos se inicializará con los roles y permisos adecuados. Si no deseas inicializar la base de datos y solo ejecutar el seeder de roles, puedes utilizar el comando `'php artisan db:seed --class=RoleSeeder'`.
 
 ## Directivas Blade relacionadas
