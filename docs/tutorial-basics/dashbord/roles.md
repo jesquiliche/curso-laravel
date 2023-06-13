@@ -449,3 +449,270 @@ En Laravel, las directivas Blade relacionadas con permisos son utilizadas en con
    ```
 
 Estas directivas Blade permiten condicionar la visualización de secciones de una plantilla según los roles y permisos del usuario. Al utilizarlas, puedes crear interfaces de usuario más dinámicas y personalizadas según los privilegios asignados a cada usuario en tu aplicación Laravel.
+
+## Adaptando nuestra vistas
+
+### Vistas de administración
+
+Hasta ahora, nuestro panel de administración es accesible para cualquier usuario registrado. Sin embargo, vamos a realizar un cambio para restringir el acceso a los usuarios con roles de **editor** o **administrador** únicamente. Edite el fichero **config\adminlte.php** y cambie la siguiente sección:
+
+```php
+['header' => 'ADMINISTRACIÓN'],
+        [
+            'text' => 'Categorías',
+            'route'  => 'admin.categoria.index',
+            'icon' => 'fas fa-fw fa-layer-group',
+            //Solo usuarios con permisos 'admin.categoria.index' (Admin y editor)
+            'can'=> 'admin.categoria.index',
+        ],
+        [
+            'text' => 'Subcategorías',
+            'route'  => 'admin.subcategorias.index',
+            'icon' => 'fas fa-fw fa-folder',
+            //Solo usuarios con permisos 'admin.subcategorias.index' (Admin y editor)
+            'can'=> 'admin.subcategorias.index',
+        ],
+        ['header' => 'USUARIOS'],
+        [
+            'text'       => 'Usuarios',
+            'icon_color' => '',
+            'icon'      =>'fas fa-fw fa-user',
+            'route'        => 'admin.user.index',
+            //Solo usuarios con permisos 'admin.user.index' (Admin y editor)
+            'can'=> 'admin.user.index',
+        ],
+```
+
+En el código proporcionado, hemos agregado la condición `'can' => 'permiso'` a cada sección del menú en el panel de administración. Esto significa que solo los usuarios con los permisos específicos mencionados podrán acceder a esas secciones. 
+
+Para las secciones de "Categorías" y "Subcategorías", solo los usuarios con los permisos `'admin.categoria.index'` y `'admin.subcategorias.index'` respectivamente ***(administradores y editores)***, podrán acceder. 
+
+Para la sección de "Usuarios", solo los usuarios con el permiso `'admin.user.index'` ***(administradores)*** podrán acceder. 
+
+Esto asegurará que solo los usuarios con los roles de administrador o editor tengan acceso a estas secciones en el panel de administración, y cualquier otro usuario registrado no podrá ver ni acceder a estas secciones restringidas.
+
+### Menú general de la aplicación
+
+Hasta ahora, solo hemos tenido acceso a nuestro panel de administración a través de la barra de navegación. Vamos a habilitar la opción de **Administración** en el menú. Para ello, debemos realizar cambios en el archivo **resources\views\layout\layout.blade.php**.
+
+```html
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Anuncios segunda mano</title>
+    <!-- Otros elementos del head -->
+
+    <!-- Incluye los estilos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"
+        integrity="sha512-rqQltXRuHxtPWhktpAZxLHUVJ3Eombn3hvk9PHjV/N5DMUYnzKPC1i3ub0mEXgFzsaZNeJcoE0YHq0j/GFsdGg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Incluye los estilos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Incluye los scripts de jQuery, Popper.js y Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>
+
+    <!-- Incluye los estilos de Font Awesome (versión 5.15.3) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <title>@yield('title')</title>
+
+    <!-- Incluye los estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('css/anuncios.css') }}">
+
+    @yield('css')
+    <!-- Incluye estilos específicos de la vista actual -->
+</head>
+<main>
+    <!-- Barra de navegación -->
+    <div class="menu container-fluid fixed-top bg-white
+
+">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white">
+                <a class="navbar-brand" href="/">
+                    <img src="/images/logo.jpeg" width="60" alt="..." loading="lazy">
+                    <span class="nav-item resaltado">Anuncios segunda mano</span></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-item" href="{{ route('home') }}"><i class="fas fa-home"></i> Home<span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                        <!-- menú usuario -->
+                        <li class="nav-item ml-2 dropdown">
+                            <a class="nav-item dropdown-toggle ml-2" href="#" id="navbarDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user-plus"></i>
+                                @if (!auth()->check())
+                                @else
+                                    {{ auth()->user()->name }}
+                                @endif
+
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('registro') }}">Registro</a>
+                                @if (!auth()->check())
+                                    <a class="dropdown-item" href="{{ route('login2') }}">Iniciar sesión</a>
+                                @endif
+
+                                @can('admin.home')
+                                    <a class="dropdown-item" href="{{ route('admin.home') }}">Administración</a>
+                                @endcan
+                                <div class="dropdown-divider"></div>
+                                @if (auth()->check())
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                        style="display: none;">
+                                        @csrf
+                                    </form>
+
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault();
+                                            document.getElementById('logout-form').submit();">
+                                        Logout
+                                    </a>
+                                @endif
+
+                            </div>
+                        </li>
+                        <!-- menú usuario -->
+
+                        <li class="nav-item ml-2">
+                            <a href="{{ route('anuncios.create') }}"><i class="far fa-file-alt"></i> Publicar
+                                anuncio</a>
+                        </li>
+
+                    </ul>
+
+                </div>
+            </nav>
+        </div>
+
+    </div>
+
+    @yield('content')
+    <!-- Contenido específico de cada vista -->
+    
+    @yield('js')
+    <footer>
+        <div class="container-fluid text-center mt-4 bg-dark">
+            <div class="container mx-auto bg-dark">
+                <br/>
+            <h6 class="text-white text-center mt-4">Copyrigth &copy; Jesús Quintana Esquiliche
+                
+            </h6>
+            <br/>
+            </div>
+            
+        </div>
+    </footer>
+    
+
+</main>
+
+</html>
+```
+
+En la sección del menú de usuario, se encuentra la configuración de roles y permisos de la aplicación.
+
+```html
+<!-- menú usuario -->
+<li class="nav-item ml-2 dropdown">
+    <a class="nav-item dropdown-toggle ml-2" href="#" id="navbarDropdown" role="button"
+        data
+
+-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-user-plus"></i>
+        @guest
+        @else
+            {{ auth()->user()->name }}
+        @endguest
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{{ route('registro') }}">Registro</a>
+        @guest
+            <a class="dropdown-item" href="{{ route('login2') }}">Iniciar sesión</a>
+        @endguest
+        @can('admin.home')
+            <a class="dropdown-item" href="{{ route('admin.home') }}">Administración</a>
+        @endcan
+        <div class="dropdown-divider"></div>
+        @auth
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <a class="dropdown-item" href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                Logout
+            </a>
+        @endauth
+    </div>
+</li>
+<!-- menú usuario -->
+```
+
+#### ¿Qué hace?
+
+1. Si el usuario no está autenticado (es un invitado), se muestra un enlace para registrarse y otro para iniciar sesión.
+
+```html
+<a class="dropdown-item" href="{{ route('registro') }}">Registro</a> <!-- Enlace para registrarse -->
+@guest <!-- Comprueba si el usuario es un invitado -->
+    <a class="dropdown-item" href="{{ route('login2') }}">Iniciar sesión</a> <!-- Enlace para iniciar sesión -->
+@endguest
+```
+
+2. Si el usuario está autenticado, se muestra su nombre.
+
+```html
+@else
+    {{ auth()->user()->name }} <!-- Muestra el nombre del usuario autenticado -->
+@endif
+```
+
+3. Si el usuario tiene permisos de administrador, se muestra un enlace para acceder a la sección de administración.
+
+```html
+@can('admin.home') <!-- Comprueba si el usuario tiene permisos de administrador -->
+    <a class="dropdown-item" href="{{ route('admin.home') }}">Administración</a> <!-- Enlace para acceder a la sección de administración -->
+@endcan
+```
+
+4. Se incluye una línea divisoria en el menú desplegable.
+
+```html
+<div class="dropdown-divider"></div> <!-- Línea divisoria en el menú desplegable -->
+```
+
+5. Si el usuario está autenticado, se muestra un enlace para cerrar sesión.
+
+```html
+@auth <!-- Comprueba si el usuario está autenticado -->
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;"> <!-- Formulario para cerrar sesión -->
+        @csrf
+    </form>
+    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        Logout <!-- Enlace para cerrar sesión -->
+    </a>
+@endauth
+```
