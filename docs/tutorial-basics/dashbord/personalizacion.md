@@ -212,9 +212,7 @@ Esta sección configura los elementos del menú de navegación de la plantilla. 
 - **Elementos de la barra lateral**:
   - `'type' => 'sidebar-menu-search'`: Agrega un campo de búsqueda en la barra lateral.
   - `'text' => 'blog'`: Crea un elemento de menú con el texto "blog" que apunta a la URL 'admin/blog'.
-  - `'text' => '
-
-pages'`: Crea un elemento de menú con el texto "pages" que apunta a la URL 'admin/pages'. También tiene un ícono y una etiqueta con valor '4' en color verde (`'success'`).
+  - `'text' => 'pages'`: Crea un elemento de menú con el texto "pages" que apunta a la URL 'admin/pages'. También tiene un ícono y una etiqueta con valor '4' en color verde (`'success'`).
   - `['header' => 'account_settings']`: Crea un encabezado en el menú lateral con el texto "account_settings".
   - `'text' => 'profile'`: Crea un elemento de menú con el texto "profile" que apunta a la URL 'admin/settings'. También tiene un ícono de usuario.
   - `'text' => 'change_password'`: Crea un elemento de menú con el texto "change_password" que apunta a la URL 'admin/settings'. También tiene un ícono de candado.

@@ -80,9 +80,7 @@ Empecemos por la vista **index.blade.php**. Esta vista nos mostrará un listado 
                         <th scope="col">Nombre</th>
                         <th scope="col">Descripción</th>
                         <th scope="col">Imagen</th>
-                        <
-
-th scope="col" colspan="2">Acción</th>
+                        <th scope="col" colspan="2">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -171,9 +169,12 @@ Como esta forma de acceder a la vista no es de lo más cómodo para el usuario, 
     'icon' => 'fas fa-fw fa-layer-group',
 ],
 ```
+De esta forma hacemos que la opción de menú sidebar apunte directamente a la
+vista **admin.categorias.index**.
+
 ### Agregar categorías
 
-En este apartado vamos a ver como habilitar el botón de **Agregar** de nuestra vista index. Para ello deberemos crear un nuevo método en nuestro controlador **CategoriaController**.
+En este apartado vamos a ver como habilitar el botón de **Agregar** de nuestra vista index, crear la vista **admin.categorias.create** y el método **create** . Para ello deberemos crear un nuevo método en nuestro controlador **CategoriaController**.
 
 ```php
 public function create()
@@ -181,7 +182,7 @@ public function create()
         return view('admin.categorias.create');
     }
 ```
-Como puede observar el código del método **create** es bastante simplemente, llamamos a la vista `admin.categorias.create`. Diríjase la carpeta `resources\views\admin\categorias` y cree el archivo `create.blade.php`.
+Como puede observar el código del método **create** es bastante simple, llamamos a la vista `admin.categorias.create`. Diríjase la carpeta `resources\views\admin\categorias` y cree el archivo `create.blade.php`.
 
 ```php
 @extends('adminlte::page')
@@ -294,8 +295,68 @@ A continuación, dentro de la vista **index.blade.php** se encuentra el siguient
     </a>
 </td>
 ```
-
 Este enlace redirige a la ruta asociada a la vista **admin.categoria.create**. El código crea un enlace dentro de una celda de una tabla. Al hacer clic en el enlace, el usuario será redirigido a la ruta definida en `route('admin.categoria.create')`, que se ha configurado para estar asociada a la vista `admin.categoria.create`.
+
+:::info Importante
+Antes de continuar asegurase que en el fichero **routes\admin.php** esta definida
+la siguiente ruta:
+
+```php
+Route::get("/subcategorias/create",[SubCategoriaController::class,'create'])->name('admin.subcategorias.create');
+```
+:::
+
+#### Codificación del botón agregar
+
+Para que el botón de la vista **admin.subcategorias.create** funcione deberá tener
+creado el siguiente método en el controlador **Admin\CategoriaController** :
+
+```php
+public function store(Request $request)
+{
+    // Validar los datos del formulario
+    $request->validate([
+        'nombre' => 'required|unique:categorias',
+        'descripcion' => 'required',
+        'imagen' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    // Crear una nueva instancia de la clase Categoria
+    $categoria = new Categoria();
+
+    // Asignar los valores del formulario a las propiedades de la instancia
+    $categoria->nombre = $request->nombre;
+    $categoria->descripcion = $request->descripcion;
+
+    // Subir y guardar la imagen si se proporciona en el formulario
+    if ($request->hasFile('imagen')) {
+        $imagen = $request->file('imagen');
+        $imagenNombre = time() . '_' . $imagen->getClientOriginalName();
+        $imagen->move(public_path('images'), $imagenNombre);
+        $categoria->imagen = '/images/'.$imagenNombre;
+    }
+
+    // Guardar la instancia de Categoria en la base de datos
+    $categoria->save();
+
+    // Redireccionar a la página de índice de categorías con un mensaje de éxito
+    return redirect()->route('admin.categoria.index')->with('success', 'Categoría agregada correctamente');
+}
+```
+:::info ¿Qué hace?
+
+1. Se validan los datos del formulario utilizando la función `validate` del objeto `$request`. Se verifica que el campo "nombre" sea requerido y único en la tabla "categorias", el campo "descripcion" sea requerido, y el campo "imagen" sea una imagen válida con formato permitido y tamaño máximo de 2048KB.
+
+2. Se crea una nueva instancia de la clase `Categoria`.
+
+3. Los valores del formulario se asignan a las propiedades de la instancia de `Categoria`. El nombre y la descripción se toman directamente de los campos del formulario.
+
+4. Si se proporciona una imagen en el formulario, se realiza el proceso de subida y almacenamiento de la imagen. Se genera un nombre único para la imagen basado en la marca de tiempo y el nombre original del archivo. Luego, se mueve la imagen a la carpeta "public/images" y se guarda la ruta de la imagen en la propiedad "imagen" de la instancia de `Categoria`.
+
+5. Se guarda la instancia de `Categoria` en la base de datos utilizando el método `save()`.
+
+6. Finalmente, se redirige al usuario a la página de índice de categorías (`admin.categoria.index`) con un mensaje de éxito que se mostrará en la vista.
+:::
 
 Ahora si se dirige al listado de categorías y hace click sobre el botón agregar se le debería mostrar la siguiente vista.
 
@@ -303,7 +364,7 @@ Ahora si se dirige al listado de categorías y hace click sobre el botón agrega
 
 ### Editar categoría
 
-A continuación, vamos a estudiar cómo implementar la vista. Empecemos por el controlador. Diríjase al archivo **app\Http\Controllers\Admin\CategoriaController.php** e introduzca el siguiente código:
+A continuación, vamos a estudiar cómo implementar la vista **adamin.categoria.index**. Empecemos por el controlador. Diríjase al archivo **app\Http\Controllers\Admin\CategoriaController.php** e introduzca el siguiente código:
 
 ```php
 public function edit($id)
@@ -1273,6 +1334,4 @@ Route::get("/subcategorias/edit/{id}",[SubCategoriaController::class,'edit'])->n
 Route::put("/subcategorias/update/{id}",[SubCategoriaController::class,'update'])->name('admin.subcategorias.update');
 Route::delete("/subcategorias/delete/{id}",[SubCategoriaController::class,'destroy'])->name('admin.subcategorias.delete');
 ```
-
-
 

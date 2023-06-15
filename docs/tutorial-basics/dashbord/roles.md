@@ -716,3 +716,307 @@ En la sección del menú de usuario, se encuentra la configuración de roles y p
     </a>
 @endauth
 ```
+## Vistas de administración de Usuarios
+
+En esta sección veremos como implementar las vistas, controladores, etc para poder asignar o desactivar roles a nuestros usurarios. Para ello estudiaremos la vistas general **admin.users.index** y **admin.users.edit**.
+
+### Creación del controlador
+
+Dentro de la carpeta de su proyecto, desde la terminal teclee el siguiente comando:
+
+```bash
+php artisan make:controller Admin\UserController
+```
+
+Diríjase al controlador creado, edite y copie el siguiente código:
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // Obtiene todos los usuarios de la base de datos
+        $users = User::all();
+
+        // Retorna la vista 'admin.users.index' y pasa la variable $users a la vista
+        return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // No implementado
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        // No implementado
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function show(User $user)
+    {
+        // No implementado
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(User $user)
+    {
+        // Obtiene todos los roles de la base de datos
+        $roles = Role::all();
+
+        // Retorna la vista 'admin.users.edit' y pasa las variables $user y $roles a la vista
+        return view('admin.users.edit', compact('user', 'roles'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, User $user)
+    {
+        // Obtiene los roles seleccionados del formulario
+        $roles = $request->roles;
+
+        // Asigna los roles al usuario
+        $user->syncRoles($roles);
+
+        // Guarda los cambios en la base de datos
+        $user->save();
+
+        // Redirige al usuario a la página de índice de usuarios con un mensaje de éxito
+        return redirect()->route('admin.user.index')->with('success', 'Usuario actualizado correctamente');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(User $user)
+    {
+        // No implementado
+    }
+}
+```
+
+#### ¿Qué hace?
+
+1. El método `index()` muestra una lista de usuarios obtenidos de la base de datos. Obtiene todos los usuarios utilizando el modelo `User` y pasa la variable `$users` a la vista 'admin.users.index'.
+
+```php
+$users = User::all();
+return view('admin.users.index', compact('users'));
+```
+
+2. El método `edit()` muestra el formulario de edición de un usuario específico. Obtiene todos los roles de la base de datos utilizando el modelo `Role` y pasa las variables `$user` y `$roles` a la vista 'admin.users.edit'.
+
+```php
+$roles = Role::all();
+return view('admin.users.edit', compact('user', 'roles'));
+```
+
+3. El método `update()` actualiza los roles de un usuario específico según los roles seleccionados en el formulario. Obtiene los roles seleccionados del formulario, asigna los roles al usuario utilizando el método `syncRoles()` y guarda los cambios en la base de datos. Luego, redirige al usuario a la página de índice de usuarios con un mensaje de éxito.
+
+```php
+$roles = $request->roles;
+$user->syncRoles($roles);
+$user->save();
+return redirect()->route('admin.user.index')->with('success', 'Usuario actualizado correctamente');
+```
+### Creación de la vista de Lista de usuarios
+
+En esta sección estudiaremos como implementar nuestra lista de usuarios. Para nuestra
+de vistas de administración de usuarios crearemos la carpeta **resources\views\admin\users**. Sitúese en la carpeta y cree la vista **index.blade.php**, a continuación edite y copie el siguiente código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Lista de Usuarios')
+
+@section('content_header')
+    <h1>Lista de Usuarios</h1>
+@stop
+
+@section('content')
+<!-- Muestra mensajes de éxito de vistas auxiliares, como la vista de edición -->
+@if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Usuarios</h3>
+        </div>
+        
+        <div class="card-body">
+            <!-- Creamos una tabla para mostrar la lista de usuarios -->
+            <table id="users-table" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Fecha de Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Para cada usuario -->
+                    @foreach($users as $user)
+                    <tr>
+                        <!-- Mostrar el id -->
+                        <td><b>{{ $user->id }}</b></td>
+                        <!-- Mostrar el nombre -->
+                        <td><b>{{ $user->name }}</b></td>
+                        <!-- Mostrar el email -->
+                        <td>{{ $user->email }}</td>
+                         <!-- Mostrar fecha de creación -->
+                        <td>{{ $user->created_at }}</td>
+                        <td>
+                            <!-- Enlace a la vista de edición -->
+                            <a href="{{ route('admin.user.edit', $user->id) }}" class="btn btn-primary btn-sm">Editar</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    
+@stop
+
+@section('css')
+    <!-- Estilos de DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+@stop
+
+@section('js')
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inicialización de DataTables
+            $('#users-table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json"
+                }
+            });
+        });
+    </script>
+@stop
+```
+En esta vista hemos introducido un componente nuevo de bootstrap,
+los datatables.
+
+### ¿Qué es un datatable?
+
+DataTables es una biblioteca de JavaScript que proporciona una funcionalidad avanzada para la manipulación y presentación de tablas de datos en páginas web. Está diseñada para trabajar con HTML, CSS y JavaScript, y es compatible con varios frameworks y bibliotecas populares, incluido Bootstrap.
+
+DataTables ofrece características como ordenamiento de columnas, filtrado de datos, paginación, búsqueda rápida, exportación de datos, manipulación de eventos, entre otros. Estas características permiten al usuario interactuar con los datos de la tabla de una manera más eficiente y cómoda.
+
+Otro aspecto importante es que no requiere recargar la pagína para efectuar estas
+operaciones.
+
+Al utilizar DataTables junto con Bootstrap, se obtiene una combinación poderosa para la creación de tablas interactivas y receptivas en aplicaciones web. Bootstrap proporciona un conjunto de estilos CSS y componentes predefinidos que se pueden aplicar a las tablas generadas por DataTables, lo que les da un aspecto visual atractivo y coherente con el resto de la interfaz de usuario.
+
+Además, DataTables es altamente personalizable y extensible, lo que significa que se puede adaptar a diferentes requisitos y necesidades específicas de cada proyecto. Proporciona una API rica que permite controlar y manipular los datos y la apariencia de la tabla de manera programática.
+
+
+
+En resumen, DataTables en Bootstrap es una combinación de la biblioteca DataTables y el framework Bootstrap, que permite crear tablas interactivas y receptivas en aplicaciones web, con características avanzadas de manipulación y presentación de datos.
+
+#### ¿Qué hace el código JavaScript
+```js
+@section('js')
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inicialización de DataTables
+            $('#users-table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json"
+                }
+            });
+        });
+    </script>
+@stop
+```
+
+1. Las líneas de código `<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>` y `<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>` importan los archivos JavaScript necesarios de DataTables desde un CDN (Content Delivery Network). Estos archivos contienen las funciones y características de DataTables que se utilizarán en la página.
+
+2. La función `$(document).ready(function() { ... });` indica que el código JavaScript dentro de ella se ejecutará una vez que el documento HTML haya sido completamente cargado y esté listo para ser manipulado.
+
+3. `$('#users-table').DataTable({ ... });` selecciona el elemento HTML con el identificador `users-table` y lo convierte en una tabla con funcionalidad DataTables. Los parámetros entre llaves `{ ... }` especifican las opciones de configuración para DataTables.
+
+4. Los parámetros de configuración especificados en el código son los siguientes:
+   - `"paging": true` habilita la paginación de la tabla.
+   - `"lengthChange": true` activa la opción de cambiar el número de registros mostrados por página.
+   - `"searching": true` habilita la funcionalidad de búsqueda en la tabla.
+   - `"ordering": true` habilita la ordenación de columnas.
+   - `"info": true` muestra información sobre el número de registros y páginas.
+   - `"autoWidth": false` desactiva el ajuste automático del ancho de las columnas.
+   - `"responsive": true` habilita la funcionalidad de diseño responsive para adaptar la tabla a diferentes dispositivos.
+   - `"language": { "url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/Spanish.json" }` especifica el archivo de idioma a utilizar para mostrar los textos en español. En este caso, se utiliza un archivo JSON proporcionado por DataTables.
+
+En resumen, este código inicializa y configura una tabla utilizando DataTables. Proporciona funcionalidades como paginación, búsqueda, ordenamiento y diseño responsive, y utiliza el idioma español para los textos de la tabla.
+
+![Lista de usuarios](/img/datatable.png)
