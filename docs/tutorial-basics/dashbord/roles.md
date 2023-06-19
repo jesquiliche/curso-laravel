@@ -11,7 +11,7 @@ A continuación, describiremos los tres tipos de usuarios y los roles asociados 
 
 1. **Usuarios registrados**: Estos usuarios son aquellos que se han registrado en nuestra aplicación. Tienen la capacidad de publicar, editar y borrar sus propios anuncios, como hemos visto en capítulos anteriores. Sin embargo, no tienen acceso al panel de administración, lo que significa que no pueden realizar acciones relacionadas con la gestión global del sitio.
 
-2. **Editores**: Los editores son usuarios con un nivel de acceso superior al de los usuarios registrados. Además de las acciones disponibles para los usuarios registrados, los editores tienen la capacidad de realizar tareas de mantenimiento en las categorías y subcategorías a través del panel de administración. Sin embargo, no tienen permisos para administrar usuarios, lo que les limita a la gestión de contenidos específicos relacionados con los anuncios.
+2. **Editores**: Los editores son usuarios con un nivel de acceso superior al de los usuarios registrados. Además de las acciones disponibles para los usuarios registrados, los editores tienen la capacidad de realizar tareas de mantenimiento en las categorías, subcategorías y anuncios de cualquier usuario a través del panel de administración. Sin embargo, no tienen permisos para administrar usuarios.
 
 3. **Administradores**: Los administradores son los usuarios con el nivel de acceso más alto en nuestra aplicación. Tienen acceso total al panel de administración, lo que les permite realizar cualquier acción en el sitio. Esto incluye publicar, editar y borrar anuncios, así como gestionar usuarios y llevar a cabo tareas de configuración y ajustes del sistema. Los administradores tienen el control total sobre todas las funciones y características de la aplicación.
 
@@ -19,7 +19,7 @@ Al establecer roles y permisos específicos para cada tipo de usuario, garantiza
 
 ## Laravel Permissions
 
-En el desarrollo de aplicaciones web, es común necesitar un sistema de gestión de permisos que permita controlar el acceso a diferentes partes de la aplicación según los roles y privilegios de los usuarios. El paquete "Laravel Permissions" es una solución popular y potente para implementar un sistema de permisos en aplicaciones Laravel.
+El paquete "Laravel Permissions" es una solución popular y potente para implementar un sistema de permisos en aplicaciones Laravel.
 
 "Laravel Permissions" es un paquete de terceros desarrollado por la comunidad, y está diseñado para ser fácilmente integrado en aplicaciones Laravel existentes. Proporciona una forma estructurada y flexible de definir roles, permisos y relaciones entre ellos.
 
@@ -39,13 +39,13 @@ Para instalar el paquete "Laravel Permissions" en tu aplicación Laravel, puedes
 
 2. Ejecutar el comando de instalación: En la terminal, ejecuta el siguiente comando para instalar el paquete "Laravel Permissions" utilizando Composer:
 
-   ```
+   ```bash
    composer require spatie/laravel-permission
    ```
 
    Esto descargará e instalará el paquete en tu proyecto Laravel, junto con sus dependencias.
 
-3. Debe publicar la migración y el config/permission.phparchivo de configuración con:
+3. Debes publicar la migración y el config/permission.php archivo de configuración con:
 
 ```
    php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
@@ -75,11 +75,11 @@ Para instalar el paquete "Laravel Permissions" en tu aplicación Laravel, puedes
    }
    ```
 
-6. (Opcional) Configurar el archivo de configuración: Abre el archivo `config/permission.php` y ajusta la configuración según tus necesidades. Aquí puedes definir los nombres de las tablas y los modelos utilizados por el paquete, así como otras opciones de configuración.
+6. (Opcional) Configurar el archivo de configuración: Abre el archivo `config/permission.php` y ajusta la configuración según tus necesidades. Aquí puedes definir los nombres de las tablas y los modelos utilizados por el paquete, así como otras opciones de configuración. En nuestro proyecto dejaremos la configuración por defecto.
 
 7. ¡Listo! El paquete "Laravel Permissions" ha sido instalado correctamente en tu aplicación Laravel. Ahora puedes comenzar a utilizarlo para definir roles, asignar permisos y verificar los permisos de los usuarios en tu código.
 
-Puedes consultar la documentación oficial del paquete "Laravel Permissions" para obtener más detalles sobre cómo utilizarlo y aprovechar todas sus características y funcionalidades.
+Puedes consultar la documentación oficial del paquete "Laravel Permissions" para obtener más detalles sobre cómo utilizarlo y aprovechar todas sus características y funcionalidades en https://spatie.be/docs/laravel-permission/v5/introduction
 
 ## Configuración básica
 
@@ -176,8 +176,6 @@ Laravel Permissions proporciona métodos sencillos para crear roles y permisos e
 
 Con estos pasos, habrás creado roles y permisos en tu aplicación utilizando Laravel Permissions. Ahora puedes asignar permisos a roles y roles a usuarios para controlar el acceso y las acciones permitidas en tu aplicación.
 
-Recuerda consultar la documentación oficial de Laravel Permissions para obtener más detalles sobre cómo trabajar con roles y permisos, así como para explorar las funcionalidades avanzadas que ofrece el paquete.
-
 ## Puesta en practica
 
 Vamos a crear un seeder para dar de altas nuestros roles y permisos. Desde la terminal sitúese dentro de la carpeta del proyecto y teclee el siguiente comando:
@@ -213,7 +211,7 @@ class RoleSeeder extends Seeder
         $adminRole = Role::create(['name' => 'Admin']);
         $editorRole = Role::create(['name' => 'Editor']);
 
-        // Crear permisos
+        // Crear permisos sobre las rutas
         Permission::create(['name' => 'admin.home']);
 		Permission::create(['name' => 'admin.user.index']);
 		Permission::create(['name' => 'admin.user.create']);
@@ -292,10 +290,10 @@ $editorRole = Role::create(['name' => 'Editor']);
 ```
 
 **Creación de permisos**
-En este bloque se crean los permisos utilizando la clase `Permission` del paquete Spatie\Permission\Models. Se definen permisos para diferentes acciones relacionadas con usuarios, categorías y subcategorías en el sistema de administración.
+En este bloque se crean los permisos utilizando la clase `Permission` del paquete Spatie\Permission\Models. Se definen permisos para diferentes acciones relacionadas con usuarios, categorías y subcategorías en el sistema de administración. En este caso estamos dando permisos sobre las rutas a las que usuario puede acceder.
 
 ```php
-// Crear permisos
+// Crear permisos sobre las rutas
 Permission::create(['name' => 'admin.home']);
 Permission::create(['name' => 'admin.user.index']);
 Permission::create(['name' => 'admin.user.create']);
@@ -345,6 +343,8 @@ $editorRole->givePermissionTo([
 ]);
 ```
 
+Observe como el role **Editor** carece de permisos sobre las rutas **admin.users** en comparación con el role **Admin**.
+
 **Creación de usuarios y asignación de roles**
 En este bloque se crean dos usuarios utilizando la clase `User`. Se crea un usuario administrador con nombre, correo electrónico y contraseña predefinidos, y se crea un usuario editor con la misma estructura. Luego, se asignan los roles correspondientes a cada usuario utilizando el método `assignRole()`.
 
@@ -356,9 +356,7 @@ $adminUser = User::create([
     'password' => bcrypt('password'),
 ]);
 
-// Asignar
-
- Role al usuario administrador
+// Asignar Role al usuario administrador
 $adminUser->assignRole($adminRole);
 
 // Crear usuario editor
@@ -690,10 +688,10 @@ En la sección del menú de usuario, se encuentra la configuración de roles y p
 @endif
 ```
 
-3. Si el usuario tiene permisos de administrador, se muestra un enlace para acceder a la sección de administración.
+3. Si el usuario tiene permisos de administrador o editor, se muestra un enlace para acceder a la sección de administración.
 
 ```html
-@can('admin.home') <!-- Comprueba si el usuario tiene permisos de administrador -->
+@can('admin.home') <!-- Comprueba si el usuario tiene permisos de administrador o editor -->
     <a class="dropdown-item" href="{{ route('admin.home') }}">Administración</a> <!-- Enlace para acceder a la sección de administración -->
 @endcan
 ```
@@ -717,7 +715,6 @@ En la sección del menú de usuario, se encuentra la configuración de roles y p
 @endauth
 ```
 ## Vistas de administración de Usuarios
-
 En esta sección veremos como implementar las vistas, controladores, etc para poder asignar o desactivar roles a nuestros usurarios. Para ello estudiaremos la vistas general **admin.users.index** y **admin.users.edit**.
 
 ### Creación del controlador
@@ -862,6 +859,12 @@ $user->syncRoles($roles);
 $user->save();
 return redirect()->route('admin.user.index')->with('success', 'Usuario actualizado correctamente');
 ```
+En el fichero de rutas **admin.php** cree la siguiente ruta:
+
+```php
+Route::resource("/users",UserController::class)->names('admin.user');
+```
+
 ### Creación de la vista de Lista de usuarios
 
 En esta sección estudiaremos como implementar nuestra lista de usuarios. Para nuestra
@@ -972,9 +975,7 @@ Al utilizar DataTables junto con Bootstrap, se obtiene una combinación poderosa
 
 Además, DataTables es altamente personalizable y extensible, lo que significa que se puede adaptar a diferentes requisitos y necesidades específicas de cada proyecto. Proporciona una API rica que permite controlar y manipular los datos y la apariencia de la tabla de manera programática.
 
-
-
-En resumen, DataTables en Bootstrap es una combinación de la biblioteca DataTables y el framework Bootstrap, que permite crear tablas interactivas y receptivas en aplicaciones web, con características avanzadas de manipulación y presentación de datos.
+DataTables en Bootstrap es una combinación de la biblioteca DataTables y el framework Bootstrap, que permite crear tablas interactivas y receptivas en aplicaciones web, con características avanzadas de manipulación y presentación de datos.
 
 #### ¿Qué hace el código JavaScript
 ```js
@@ -1020,3 +1021,95 @@ En resumen, DataTables en Bootstrap es una combinación de la biblioteca DataTab
 En resumen, este código inicializa y configura una tabla utilizando DataTables. Proporciona funcionalidades como paginación, búsqueda, ordenamiento y diseño responsive, y utiliza el idioma español para los textos de la tabla.
 
 ![Lista de usuarios](/img/datatable.png)
+
+### Creación de la vista de Edición de usuarios
+
+A continuación vamos a crear nuestra vista de edición de usuarios. donde podremos
+darles los roles de administrador o editor. Esta vista es accesible desde la lista de usuarios a traves del botón de editar.
+
+![Editar usuario](/img/editar_usuario.png)
+
+Antes que nada recordemos que hacia el método edit del controlador **app\Http\Controllers\Admin\UserController.php**.
+
+```php
+  public function edit(User $user)
+    {
+        // Obtiene todos los roles de la base de datos
+        $roles = Role::all();
+
+        // Retorna la vista 'admin.users.edit' y pasa las variables $user y $roles a la vista
+        return view('admin.users.edit', compact('user', 'roles'));
+    }
+```
+
+Cree la siguiente vista **resources\views\admin\users\edit.blade.php**,
+editela y copie el siguiente código:
+
+```php
+@extends('adminlte::page')
+
+@section('title', 'Lista de Usuarios')
+
+@section('content_header')
+    <h1>Editar usuario</h1>
+@stop
+
+@section('content')
+    <div class="card p-4 col-md-12">
+    <!-- Mostramos el nombre del usuario -->
+        <h5>Nombre</h5>
+        <p class="form-control">{{$user->name}}</p>
+
+        {!! Form::open(['route' => ['admin.user.update', $user->id], 'method' => 'PUT']) !!}
+        <!-- Listamos todos los roles disponibles para el usuario -->
+        <h5>Roles</h5>
+        <!-- Para cada role -->
+        @foreach($roles as $role)
+            <div class="form-check">
+             <!-- Crear checkbox -->
+                {{ Form::checkbox('roles[]', $role->id, $user->roles->pluck('id')->contains($role->id), ['class' => 'form-check-input', 'id' => 'role-' . $role->id]) }}
+                {{ Form::label('role-' . $role->id, $role->name, ['class' => 'form-check-label ml-1']) }}
+            </div>
+        @endforeach
+
+        {{ Form::submit('Asignar roles', ['class' => 'btn btn-primary mt-3']) }}
+        {!! Form::close() !!}
+    </div>
+@stop
+```
+
+### ¿Qué hace?
+
+1. `@extends('adminlte::page')`: Esta línea indica que la vista extiende la plantilla 'adminlte::page', que proporciona la estructura y los estilos comunes para las páginas de administración en el tema AdminLTE.
+
+2. `@section('title', 'Lista de Usuarios')`: Esta línea define la sección 'title' y establece su valor como 'Lista de Usuarios'. Esta sección se utiliza para mostrar el título de la página en la pestaña del navegador.
+
+3. `@section('content_header')`: Esta línea define la sección 'content_header', que se utiliza para mostrar el encabezado del contenido de la página. En este caso, se muestra 'Editar usuario' como encabezado.
+
+4. `@section('content')`: Esta línea define la sección 'content', que contiene el contenido principal de la página.
+
+5. `<div class="card p-4 col-md-12">`: Se crea un contenedor con la clase 'card', que proporciona un estilo de tarjeta. La clase 'p-4' agrega un espacio interno de 4 unidades y la clase 'col-md-12' define que el contenedor ocupe 12 columnas en dispositivos medianos.
+
+6. `<h5>Nombre</h5>`: Se muestra un encabezado de nivel 5 con el texto "Nombre".
+
+7. `<p class="form-control">{{$user->name}}</p>`: Se muestra un párrafo con la clase 'form-control', que aplica estilos específicos. Dentro del párrafo se muestra el nombre del usuario, que se obtiene de la variable `$user->name`.
+
+8. `{!! Form::open(['route' => ['admin.user.update', $user->id], 'method' => 'PUT']) !!}`: Se abre un formulario que utiliza el método `PUT` y la ruta 'admin.user.update' para enviar los datos al servidor.
+
+9. `<h5>Roles</h5>`: Se muestra un encabezado de nivel 5 con el texto "Roles".
+
+10. `@foreach($roles as $role)`: Se inicia un bucle que itera sobre la variable `$roles`, donde cada iteración representa un rol disponible.
+
+11. `<div class="form-check">`: Se crea un contenedor con la clase 'form-check', que proporciona estilos para elementos de casilla de verificación.
+
+12. `{{ Form::checkbox('roles[]', $role->id, $user->roles->pluck('id')->contains($role->id), ['class' => 'form-check-input', 'id' => 'role-' . $role->id]) }}`: Se genera una casilla de verificación utilizando el método `Form::checkbox()`. El primer parámetro es el nombre del campo de la casilla de verificación ('roles[]' indica que es un array). El segundo parámetro es el valor de la casilla, que es el ID del rol actual. El tercer parámetro determina si la casilla debe estar marcada o no, verificando si el ID del rol actual está presente en la colección de roles asignados al usuario. El cuarto parámetro es un array de atributos adicionales para la casilla de verificación.
+
+13. `{{ Form::label('role-' . $role->id, $role->name, ['class' => 'form-check-label ml-1']) }}`: Se genera una etiqueta para la casilla de verificación, donde el primer par
+
+ámetro es el ID único de la etiqueta, el segundo parámetro es el texto de la etiqueta (nombre del rol) y el tercer parámetro es un array de atributos adicionales.
+
+14. `{{ Form::submit('Asignar roles', ['class' => 'btn btn-primary mt-3']) }}`: Se genera un botón de envío con el texto "Asignar roles" y la clase 'btn btn-primary' para darle estilo.
+
+15. `{!! Form::close() !!}`: Se cierra el formulario.
+
+En resumen, este código define una página de edición de usuarios que muestra el nombre del usuario, una lista de roles disponibles y un formulario para asignar roles. Cada rol se muestra como una casilla de verificación y se puede marcar o desmarcar según los roles asignados al usuario. Al enviar el formulario, se actualizan los roles del usuario.

@@ -6,7 +6,8 @@ sidebar_position: 5
 
 ## Introducción
 
-En esta sección veremos cómo implementar las vistas, controladores y rutas para mantener nuestras **categorías, subcategorías y usuarios**. Al final del capítulo, también estudiaremos cómo crear un sistema de roles y permisos para nuestros **usuarios**.
+En esta sección veremos cómo implementar las vistas, controladores y rutas para mantener nuestras **categorías, subcategorías y usuarios**. 
+En la sección siguiente también estudiaremos cómo crear un sistema de roles y permisos para nuestros **usuarios**.
 
 ## Categorías
 
