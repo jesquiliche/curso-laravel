@@ -8,9 +8,9 @@ sidebar_position: 1
 
 **Autor: Jesús Quintana Esquiliche**
 
-Título: Explorando Laravel: Desarrollo de aplicaciones web poderosas
+Título: Laravel 10: Crea aplicaciones web escalables y seguras
 
-¡Bienvenidos a la presentación del libro "Explorando Laravel: Desarrollo de aplicaciones web poderosas"! En esta ocasión, nos adentraremos en el fascinante mundo de Laravel, uno de los frameworks de desarrollo web más populares y poderosos disponibles en la actualidad.
+¡Bienvenidos a la presentación del libro "Laravel 10: Crea aplicaciones web escalables y seguras"! En esta ocasión, nos adentraremos en el fascinante mundo de Laravel, uno de los frameworks de desarrollo web más populares y poderosos disponibles en la actualidad.
 
 En este libro, nos sumergiremos en un viaje de aprendizaje que nos llevará desde los conceptos básicos hasta el dominio de las técnicas avanzadas en Laravel. Descubriremos cómo aprovechar al máximo este framework para crear aplicaciones web de alto rendimiento, escalables y seguras.
 
