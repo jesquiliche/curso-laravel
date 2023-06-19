@@ -1113,3 +1113,71 @@ editela y copie el siguiente código:
 15. `{!! Form::close() !!}`: Se cierra el formulario.
 
 En resumen, este código define una página de edición de usuarios que muestra el nombre del usuario, una lista de roles disponibles y un formulario para asignar roles. Cada rol se muestra como una casilla de verificación y se puede marcar o desmarcar según los roles asignados al usuario. Al enviar el formulario, se actualizan los roles del usuario.
+
+## Proteger las rutas de administración
+
+Hasta ahora hemos protegido nuestro panel de administración para evitar accesos indeseados, ocultando información y opciones de menú a usuarios no autorizados. Sin embargo, esto no es suficiente, ya que no impide que cualquier usuario acceda a las rutas de administración a través de la barra de direcciones. Aprenderemos cómo solucionar esta circunstancia utilizando el middleware 'can'.
+
+En Laravel, el middleware `can` se utiliza para realizar la autorización de acceso a determinadas rutas o acciones dentro de tu aplicación.
+
+El middleware `can` se basa en el sistema de control de acceso de Laravel, que utiliza una capa de autorización para definir políticas y permisos. Estos permisos se definen en las clases de políticas asociadas a los modelos de tu aplicación.
+
+Cuando se aplica el middleware `can` a una ruta o grupo de rutas, Laravel verifica si el usuario actual tiene permiso para acceder a esa ruta antes de continuar con la ejecución de la solicitud.
+
+El middleware `can` toma un argumento que representa la capacidad o acción que se desea autorizar. Por ejemplo, si tienes una política llamada `EditarPostPolicy` y un método `update` dentro de esa política que verifica si el usuario puede editar un post, puedes utilizar el middleware `can` de la siguiente manera:
+
+```php
+Route::put('/posts/{id}', function ($id) {
+    // Acción para editar un post
+})->middleware('can:update,App\Post');
+```
+
+En este ejemplo, el middleware `can` verifica si el usuario actual tiene permiso para realizar la acción de "actualizar" en el modelo `App\Post`. Laravel buscará la política asociada al modelo y ejecutará el método `update` dentro de esa política para determinar si se concede el permiso.
+
+Si el usuario no tiene el permiso requerido, Laravel devolverá una respuesta de error (generalmente un código 403 - Prohibido) y no se permitirá el acceso a la ruta.
+
+El middleware `can` también puede utilizar una sintaxis más compacta para verificar permisos específicos. Por ejemplo:
+
+```php
+Route::put('/posts/{id}', function ($id) {
+    // Acción para editar un post
+})->middleware('can:editar,App\Post');
+```
+
+En este caso, se utiliza `can:editar` como argumento del middleware, lo que indica que el usuario debe tener el permiso de "editar" en el modelo `App\Post`.
+
+En resumen, el middleware `can` en Laravel se utiliza para realizar la autorización de acceso a rutas o acciones específicas, verificando si el usuario actual tiene los permisos necesarios definidos en las políticas asociadas a los modelos de tu aplicación.
+
+Dicho esto, vamos a editar el archivo **routes\admin.php**. Copia y pega el siguiente código:
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\SubCategoriaController;
+use App\Http\Controllers\Admin\UserController;
+
+Route::get('/', [HomeController::class, 'index'])->middleware('can:admin.home')->name('admin.home');
+Route::get("/categorias", [CategoriaController::class, 'index'])->middleware('can:admin.categoria.index')->name('admin.categoria.index');
+Route
+
+::get("/categorias/create", [CategoriaController::class, 'create'])->middleware('can:admin.categoria.create')->name('admin.categoria.create');
+Route::post("/categorias/store", [CategoriaController::class, 'store'])->middleware('can:admin.categoria.store')->name('admin.categoria.store');
+Route::put("/categorias/update/{id}", [CategoriaController::class, 'update'])->middleware('can:admin.categoria.update')->name('admin.categoria.update');
+Route::get("/categorias/edit/{id}", [CategoriaController::class, 'edit'])->middleware('can:admin.categoria.edit')->name('admin.categoria.edit');
+Route::delete("/categorias/delete/{id}", [CategoriaController::class, 'destroy'])->middleware('can:admin.categoria.delete')->name('admin.categoria.delete');
+
+Route::get("/subcategorias", [SubCategoriaController::class, 'index'])->middleware('can:admin.subcategorias.index')->name('admin.subcategorias.index');
+Route::post("/subcategorias/store", [SubCategoriaController::class, 'store'])->middleware('can:admin.subcategorias.store')->name('admin.subcategorias.store');
+Route::get("/subcategorias/create", [SubCategoriaController::class, 'create'])->middleware('can:admin.subcategorias.create')->name('admin.subcategorias.create');
+Route::get("/subcategorias/edit/{id}", [SubCategoriaController::class, 'edit'])->middleware('can:admin.subcategorias.edit')->name('admin.subcategorias.edit');
+Route::put("/subcategorias/update/{id}", [SubCategoriaController::class, 'update'])->middleware('can:admin.subcategorias.update')->name('admin.subcategorias.update');
+Route::delete("/subcategorias/delete/{id}", [SubCategoriaController::class, 'destroy'])->middleware('can:admin.subcategorias.delete')->name('admin.subcategorias.delete');
+
+Route::resource("/users", UserController::class)->middleware('can:admin.user')->names('admin.user');
+```
+
+Con esto, concluimos este capítulo.
