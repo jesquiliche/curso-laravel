@@ -109,7 +109,7 @@ Recuerda seleccionar el paquete con la versión 8.1
 
 ## Configuración de Base de datos
 
-Sí, por supuesto. Para configurar las variables de entorno para conectar Laravel con la base de datos, sigue estos pasos:
+Para configurar las variables de entorno para conectar Laravel con la base de datos, sigue estos pasos:
 
 1. Abre tu proyecto Laravel en tu editor de código preferido.
 2. Crea un archivo llamado `.env` en la raíz del proyecto. Si estás utilizando Windows, puedes hacer esto abriendo la línea de comandos, navegando hasta el directorio raíz del proyecto y escribiendo el comando `copy .env.example .env`. Si estás utilizando Mac o Linux, puedes usar el comando `cp .env.example .env`.
@@ -194,7 +194,7 @@ En resumen, Jetstream es una herramienta muy útil para los desarrolladores de L
 
 ## ¿Qué hemos hecho?
 
- ¡Por supuesto! Aquí hay un ejemplo de cómo podría verse un proyecto de Laravel 10 con Jetstream:
+ Aquí hay un ejemplo de cómo podría verse un proyecto de Laravel 10 con Jetstream:
 
 Estructura de carpetas:
 

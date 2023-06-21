@@ -14,8 +14,6 @@ Eloquent soporta una amplia variedad de operadores y cláusulas, como `where`, `
 
 Las consultas en Eloquent también soportan relaciones entre modelos, lo que permite obtener registros relacionados utilizando métodos como `with`, `has`, `whereHas`, entre otros.
 
-
-
 ## Cómo utilizar Eloquent para encadenar métodos y construir consultas.
 
 En Eloquent, las consultas son utilizadas para recuperar datos de la base de datos. Una de las características más poderosas de Eloquent es su lenguaje fluido, que permite encadenar métodos para construir consultas complejas de forma muy legible y mantenible.

@@ -231,7 +231,6 @@ Diríjase al directorio database/migrations y edite al fichero con la migración
 
 Copie el siguiente código y sustituya el código del fichero.
 ```js
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -265,6 +264,7 @@ return new class extends Migration
         Schema::dropIfExists('categorias');
     }
 };
+
 
 ```
 :::tip tipos de datos más comunes en Laravel
